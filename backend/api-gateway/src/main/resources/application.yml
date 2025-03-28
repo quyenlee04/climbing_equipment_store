@@ -1,0 +1,39 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: product-service
+          uri: lb://product-service
+          predicates:
+            - Path=/api/products/**, /api/brands/**, /api/categories/**, /api/reviews/**
+        - id: product-service-test
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/test, /test
+        - id: users-service
+          uri: lb://users-service
+          predicates:
+            - Path=/api/users/**, /api/auth/**
+      discovery:
+        locator:
+          enabled: true
+  config:
+    import: optional:configserver:http://localhost:8888
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
