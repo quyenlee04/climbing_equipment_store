@@ -1,7 +1,7 @@
-// Using Fetch API instead of Axios
 const API_BASE_URL = 'http://localhost:8080/api';
 
 const api = {
+  // Update the request method to better handle responses
   request: async (endpoint, options = {}) => {
     const token = localStorage.getItem('token');
     
@@ -20,7 +20,8 @@ const api = {
     };
     
     try {
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+      const cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
+      const response = await fetch(`${API_BASE_URL}/${cleanEndpoint}`, config);
       
       // Handle 401 Unauthorized
       if (response.status === 401) {
@@ -39,10 +40,11 @@ const api = {
       // Check if response is empty
       const contentType = response.headers.get('content-type');
       if (contentType && contentType.includes('application/json')) {
-        return await response.json();
+        const data = await response.json();
+        return { data }; // Ensure we always return an object with a data property
       }
       
-      return await response.text();
+      return { data: await response.text() }; // Wrap text responses in a data property too
     } catch (error) {
       console.error('API request error:', error);
       throw error;
@@ -50,11 +52,30 @@ const api = {
   },
   
   get: (endpoint, params = {}) => {
-    const url = new URL(`${API_BASE_URL}${endpoint}`);
-    Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+    // Fix: Clean the endpoint here too to avoid double /api/api/
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
     
-    return api.request(url.pathname + url.search, {
-      method: 'GET'
+    // Create the URL with the base and endpoint
+    let url = `${API_BASE_URL}/${cleanEndpoint}`;
+    
+    // Add query parameters if they exist
+    if (params && Object.keys(params).length > 0) {
+      const queryParams = new URLSearchParams();
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          queryParams.append(key, value);
+        }
+      });
+      
+      const queryString = queryParams.toString();
+      if (queryString) {
+        url += `?${queryString}`;
+      }
+    }
+    
+    return api.request(cleanEndpoint, {
+      method: 'GET',
+      params
     });
   },
   

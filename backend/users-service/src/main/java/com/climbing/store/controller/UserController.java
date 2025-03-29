@@ -1,21 +1,30 @@
 package com.climbing.store.controller;
 
-import com.climbing.store.dto.AddressDTO;
-import com.climbing.store.dto.UserDTO;
-import com.climbing.store.dto.response.MessageResponse;
-import com.climbing.store.security.services.UserDetailsImpl;
-import com.climbing.store.service.UserService;
-import jakarta.validation.Valid;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import com.climbing.store.dto.AddressDTO;
+import com.climbing.store.dto.UserDTO;
+import com.climbing.store.dto.response.MessageResponse;
+import com.climbing.store.security.services.UserDetailsImpl;
+import com.climbing.store.service.UserService;
 
-@CrossOrigin(origins = "*", maxAge = 3600)
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/users")
 public class UserController {

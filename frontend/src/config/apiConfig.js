@@ -2,6 +2,7 @@
 const API_BASE_URL = 'http://localhost:8080/api';
 
 // API Endpoints
+// Add these endpoints to your existing apiConfig.js file
 const API_ENDPOINTS = {
   // Product Service
   PRODUCTS: '/products',
@@ -11,8 +12,8 @@ const API_ENDPOINTS = {
   REVIEWS: '/reviews',
   
   // User Service
-  LOGIN: '/auth/login',
-  REGISTER: '/auth/register',
+  LOGIN: '/auth/signin',
+  REGISTER: '/auth/signup',
   USER_PROFILE: '/users/me',
   ADDRESSES: '/addresses',
   
@@ -23,8 +24,13 @@ const API_ENDPOINTS = {
   CHECKOUT: '/checkout',
   
   // Order Service
+  USERS: '/users',
   ORDERS: '/orders',
   ORDER_DETAILS: (id) => `/orders/${id}`,
+  UPDATE_ORDER_STATUS: (id) => `/orders/${id}/status`,
+  BRANDS: '/brands',
+  CATEGORIES: '/categories',
+  DASHBOARD_STATS: '/dashboard/stats'
 };
 
 export { API_BASE_URL, API_ENDPOINTS };

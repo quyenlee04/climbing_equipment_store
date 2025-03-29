@@ -1,0 +1,41 @@
+.admin-brands {
+  width: 100%;
+}
+
+.brand-logo {
+  width: 60px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.brand-modal {
+  background-color: white;
+  padding: 30px;
+  border-radius: 8px;
+  width: 500px;
+  max-width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.brand-modal h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #2c3e50;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.logo-preview {
+  margin: 15px 0;
+  text-align: center;
+}
+
+.logo-preview img {
+  max-width: 100%;
+  max-height: 100px;
+  object-fit: contain;
+  border: 1px solid #eee;
+  padding: 10px;
+  border-radius: 4px;
+}

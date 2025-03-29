@@ -28,7 +28,7 @@ spring:
           predicates:
             - Path=/api/orders/**
           filters:
-            - RewritePath=/api/(?<segment>.*), /api/$\{segment}
+            - RewritePath=/api/(?<segment>.*), /$\{segment}
       discovery:
         locator:
           enabled: true

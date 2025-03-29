@@ -2,7 +2,6 @@ import api from './api';
 import { API_ENDPOINTS } from '../config/apiConfig';
 
 const orderService = {
-  // Get all orders for current user
   getOrders: async () => {
     try {
       const response = await api.get(API_ENDPOINTS.ORDERS);
@@ -12,7 +11,6 @@ const orderService = {
     }
   },
 
-  // Get order details by ID
   getOrderById: async (orderId) => {
     try {
       const response = await api.get(API_ENDPOINTS.ORDER_DETAILS(orderId));
@@ -22,15 +20,23 @@ const orderService = {
     }
   },
 
-  // Cancel an order
-  cancelOrder: async (orderId) => {
+  createOrder: async (orderData) => {
     try {
-      const response = await api.put(`${API_ENDPOINTS.ORDERS}/${orderId}/cancel`);
+      const response = await api.post(API_ENDPOINTS.ORDERS, orderData);
       return response.data;
     } catch (error) {
       throw error;
     }
   },
+
+  updateOrderStatus: async (orderId, status) => {
+    try {
+      const response = await api.put(API_ENDPOINTS.UPDATE_ORDER_STATUS(orderId), { status });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
 };
 
 export default orderService;
