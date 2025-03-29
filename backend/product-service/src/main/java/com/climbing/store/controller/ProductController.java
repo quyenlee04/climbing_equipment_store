@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.climbing.store.dto.ProductDTO;
 import com.climbing.store.dto.ProductImageDTO;
+import com.climbing.store.dto.ProductInfoDTO;
+import com.climbing.store.model.ProductImage;
+import com.climbing.store.repository.ProductImageRepository;
 import com.climbing.store.service.ProductService;
 
 @RestController
@@ -25,6 +28,8 @@ public class ProductController {
 
     @Autowired
     private ProductService productService;
+    @Autowired
+    private ProductImageRepository productImageRepository;
     
     @GetMapping
     public ResponseEntity<List<ProductDTO>> getAllProducts(
@@ -149,5 +154,30 @@ public class ProductController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
+    }
+    
+    // Add this method to your existing ProductController class
+    
+    @GetMapping("/{id}/info")
+    public ResponseEntity<ProductInfoDTO> getProductInfo(@PathVariable Integer id) {
+        ProductDTO product = productService.getProductById(id);
+        if (product == null) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        ProductInfoDTO productInfo = new ProductInfoDTO();
+        productInfo.setId(product.getId());
+        productInfo.setName(product.getName());
+        productInfo.setSku(product.getSku());
+        productInfo.setPrice(product.getPrice());
+        productInfo.setStockQuantity(product.getStockQuantity());
+        
+        // Get primary image if available
+        ProductImage primaryImage = productImageRepository.findByProductIdAndIsPrimaryTrue(id);
+        if (primaryImage != null) {
+            productInfo.setImageUrl(primaryImage.getImageUrl());
+        }
+        
+        return ResponseEntity.ok(productInfo);
     }
 }

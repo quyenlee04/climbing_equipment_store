@@ -18,7 +18,17 @@ spring:
         - id: users-service
           uri: lb://users-service
           predicates:
-            - Path=/api/users/**, /api/auth/**
+            - Path=/api/users/**, /api/auth/**, /api/addresses/**
+        - id: cart-service
+          uri: lb://cart-service
+          predicates:
+            - Path=/api/cart/**, /api/checkout/**
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - Path=/api/orders/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /api/$\{segment}
       discovery:
         locator:
           enabled: true
