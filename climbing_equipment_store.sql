@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Mar 28, 2025 at 06:50 AM
+-- Generation Time: Mar 28, 2025 at 03:25 PM
 -- Server version: 8.0.30
 -- PHP Version: 8.1.10
 
@@ -24,6 +24,24 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `addresses`
+--
+
+CREATE TABLE `addresses` (
+  `id` int NOT NULL,
+  `address_line1` varchar(255) NOT NULL,
+  `address_line2` varchar(255) DEFAULT NULL,
+  `city` varchar(255) NOT NULL,
+  `country` varchar(255) NOT NULL,
+  `is_default` bit(1) NOT NULL,
+  `postal_code` varchar(255) NOT NULL,
+  `state` varchar(255) NOT NULL,
+  `user_id` int NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `brands`
 --
 
@@ -35,6 +53,13 @@ CREATE TABLE `brands` (
   `is_active` tinyint(1) DEFAULT '1',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `brands`
+--
+
+INSERT INTO `brands` (`brand_id`, `name`, `description`, `website_url`, `is_active`, `created_at`) VALUES
+(1, 'Black Diamond', 'Premium climbing', 'https://www.blackdiamondequipment.com', 1, '2025-03-28 08:57:38');
 
 -- --------------------------------------------------------
 
@@ -78,6 +103,13 @@ CREATE TABLE `categories` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `categories`
+--
+
+INSERT INTO `categories` (`category_id`, `name`, `description`, `parent_category_id`, `is_active`, `created_at`, `updated_at`) VALUES
+(1, 'Harnesses', 'Climbing harnesses for all types of climbing', NULL, 1, '2025-03-28 09:03:46', '2025-03-28 09:03:46');
 
 -- --------------------------------------------------------
 
@@ -192,6 +224,13 @@ CREATE TABLE `products` (
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Dumping data for table `products`
+--
+
+INSERT INTO `products` (`product_id`, `name`, `description`, `brand_id`, `category_id`, `price`, `stock_quantity`, `weight`, `dimensions`, `sku`, `is_active`, `created_at`, `updated_at`) VALUES
+(1, 'Climbing Harness ProMax', 'Professional grade climbing harness with adjustable leg loops', NULL, NULL, 129.99, 50, 0.35, '30x20x10 cm', 'HAR-PRO-001', 1, '2025-03-28 08:47:38', '2025-03-28 08:53:27');
+
 -- --------------------------------------------------------
 
 --
@@ -228,18 +267,16 @@ CREATE TABLE `product_reviews` (
 
 CREATE TABLE `roles` (
   `role_id` int NOT NULL,
-  `name` varchar(50) NOT NULL,
-  `description` text
+  `name` enum('ROLE_USER','ROLE_ADMIN') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `roles`
 --
 
-INSERT INTO `roles` (`role_id`, `name`, `description`) VALUES
-(1, 'ADMIN', 'Administrator with full system access'),
-(2, 'CUSTOMER', 'Regular customer'),
-(3, 'STAFF', 'Store staff with limited access');
+INSERT INTO `roles` (`role_id`, `name`) VALUES
+(2, 'ROLE_USER'),
+(1, 'ROLE_ADMIN');
 
 -- --------------------------------------------------------
 
@@ -257,7 +294,8 @@ CREATE TABLE `users` (
   `role_id` int DEFAULT NULL,
   `is_active` tinyint(1) DEFAULT '1',
   `last_login` timestamp NULL DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `phone_number` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -281,6 +319,17 @@ CREATE TABLE `user_addresses` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `user_roles`
+--
+
+CREATE TABLE `user_roles` (
+  `user_id` int NOT NULL,
+  `role_id` int NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `wishlists`
 --
 
@@ -294,6 +343,12 @@ CREATE TABLE `wishlists` (
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `addresses`
+--
+ALTER TABLE `addresses`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `brands`
@@ -411,6 +466,12 @@ ALTER TABLE `user_addresses`
   ADD KEY `user_id` (`user_id`);
 
 --
+-- Indexes for table `user_roles`
+--
+ALTER TABLE `user_roles`
+  ADD PRIMARY KEY (`user_id`,`role_id`);
+
+--
 -- Indexes for table `wishlists`
 --
 ALTER TABLE `wishlists`
@@ -423,10 +484,16 @@ ALTER TABLE `wishlists`
 --
 
 --
+-- AUTO_INCREMENT for table `addresses`
+--
+ALTER TABLE `addresses`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `brands`
 --
 ALTER TABLE `brands`
-  MODIFY `brand_id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `brand_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `carts`
@@ -444,7 +511,7 @@ ALTER TABLE `cart_items`
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `category_id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `category_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `orders`
@@ -480,7 +547,7 @@ ALTER TABLE `payment_methods`
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `product_id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `product_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `product_images`

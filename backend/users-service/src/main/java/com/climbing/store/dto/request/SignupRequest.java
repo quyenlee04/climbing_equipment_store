@@ -1,11 +1,11 @@
 package com.climbing.store.dto.request;
 
+import java.util.Set;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-
-import java.util.Set;
 
 @Data
 public class SignupRequest {
@@ -13,6 +13,9 @@ public class SignupRequest {
     @Size(max = 50)
     @Email
     private String email;
+
+    @Size(max = 50)
+    private String username;
 
     @NotBlank
     @Size(min = 6, max = 40)
