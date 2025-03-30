@@ -11,6 +11,10 @@ spring:
           uri: lb://product-service
           predicates:
             - Path=/api/products/**, /api/brands/**, /api/categories/**, /api/reviews/**
+        # - id: product-uploads
+        #   uri: lb://product-services
+        #   predicates:
+        #     - Path=/uploads/**
         - id: product-service-test
           uri: http://localhost:8081
           predicates:
@@ -27,6 +31,10 @@ spring:
           uri: lb://order-service
           predicates:
             - Path=/api/orders/**
+        - id: uploads-route
+          uri: file:///c:/Users/PC/Desktop/climbing-equipment-store/uploads
+          predicates:
+            - Path=/uploads/**
           filters:
             - RewritePath=/api/(?<segment>.*), /$\{segment}
       discovery:

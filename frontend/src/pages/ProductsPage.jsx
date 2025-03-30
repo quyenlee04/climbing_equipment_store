@@ -6,11 +6,11 @@ import ProductList from '../components/products/ProductList';
 const ProductsPage = () => {
   return (
     <div className="products-page">
-      <Header />
+
       <div className="page-content">
         <ProductList />
       </div>
-      <Footer />
+
     </div>
   );
 };

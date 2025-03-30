@@ -5,10 +5,15 @@ const api = {
   request: async (endpoint, options = {}) => {
     const token = localStorage.getItem('token');
     
+    // Initialize headers
     const headers = {
-      'Content-Type': 'application/json',
       ...options.headers
     };
+    
+    // Only set Content-Type to application/json if we're not sending FormData
+    if (!(options.body instanceof FormData)) {
+      headers['Content-Type'] = 'application/json';
+    }
     
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
@@ -18,6 +23,11 @@ const api = {
       ...options,
       headers
     };
+    
+    // If the body is an object and not FormData, stringify it
+    if (config.body && typeof config.body === 'object' && !(config.body instanceof FormData)) {
+      config.body = JSON.stringify(config.body);
+    }
     
     try {
       const cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
@@ -44,7 +54,7 @@ const api = {
         return { data }; // Ensure we always return an object with a data property
       }
       
-      return { data: await response.text() }; // Wrap text responses in a data property too
+      return { data: {} }; // Return empty data for non-JSON responses
     } catch (error) {
       console.error('API request error:', error);
       throw error;

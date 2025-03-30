@@ -2,12 +2,12 @@
   display: flex;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 30px 20px;
+  gap: 30px;
 }
 
 .product-list-content {
   flex: 1;
-  padding-left: 30px;
 }
 
 .product-list-header {
@@ -15,71 +15,63 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .product-list-header h1 {
   font-size: 28px;
   color: #333;
+  margin: 0;
+  font-weight: 600;
 }
 
 .sort-container {
   display: flex;
   align-items: center;
+  gap: 10px;
 }
 
 .sort-container label {
-  margin-right: 10px;
-  font-size: 14px;
-  color: #666;
+  font-size: 15px;
+  color: #555;
+  font-weight: 500;
 }
 
 .sort-container select {
   padding: 8px 12px;
   border: 1px solid #ddd;
   border-radius: 4px;
-  background-color: #fff;
+  background-color: white;
   font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: border-color 0.2s;
 }
 
-.product-grid {
+.sort-container select:focus {
+  border-color: #b75a74;
+  outline: none;
+}
+
+.products-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 30px;
-}
-
-.loading-spinner {
-  text-align: center;
-  padding: 50px;
-  font-size: 18px;
-  color: #666;
 }
 
 .no-products {
   text-align: center;
-  padding: 50px;
-}
-
-.no-products p {
-  margin-bottom: 20px;
-  font-size: 18px;
+  padding: 50px 0;
   color: #666;
-}
-
-.no-products button {
-  padding: 10px 20px;
-  background-color: #b75a74;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-.error-message {
-  text-align: center;
-  padding: 50px;
-  color: #e74c3c;
   font-size: 18px;
+}
+
+@media (max-width: 992px) {
+  .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -87,12 +79,17 @@
     flex-direction: column;
   }
   
-  .product-list-content {
-    padding-left: 0;
-    margin-top: 30px;
+  .product-list-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
   }
   
-  .product-grid {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  .sort-container {
+    width: 100%;
+  }
+  
+  .sort-container select {
+    flex: 1;
   }
 }

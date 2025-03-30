@@ -16,8 +16,8 @@ const Footer = () => {
             id maximus ex. Etiam nec dignissim elit, at dignissim enim.
           </p>
           <div className="social-icons">
-            <a href="#" className="social-icon"><img src={instagramIcon} alt="Instagram" /></a>
-            <a href="#" className="social-icon"><img src={facebookIcon} alt="Facebook" /></a>
+            <a href="https://www.instagram.com/quyenlei/" className="social-icon"><img src={instagramIcon} alt="Instagram" /></a>
+            <a href="https://www.facebook.com/quyenj09" className="social-icon"><img src={facebookIcon} alt="Facebook" /></a>
             <a href="#" className="social-icon"><img src={twitterIcon} alt="Twitter" /></a>
           </div>
         </div>

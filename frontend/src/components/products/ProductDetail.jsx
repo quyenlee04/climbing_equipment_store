@@ -16,13 +16,19 @@ const ProductDetail = () => {
   const [activeTab, setActiveTab] = useState('description');
   const [addingToCart, setAddingToCart] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
     const fetchProduct = async () => {
       setLoading(true);
       try {
+
         const data = await productService.getProductById(id);
         setProduct(data);
+        // Set the selected image to the primary image when product loads
+        if (data && data.primaryImageUrl) {
+          setSelectedImage(data.primaryImageUrl);
+        }
         setError(null);
       } catch (err) {
         console.error('Error fetching product:', err);
@@ -37,10 +43,13 @@ const ProductDetail = () => {
 
   const handleQuantityChange = (e) => {
     const value = parseInt(e.target.value);
-    if (value > 0 && value <= product.stockQuantity) {
+    if (value > 0 && product && value <= product.stockQuantity) {
       setQuantity(value);
     }
   };
+
+  // Move this inside the render section after the null checks
+  // to avoid accessing properties of null
 
   const decrementQuantity = () => {
     if (quantity > 1) {
@@ -49,12 +58,14 @@ const ProductDetail = () => {
   };
 
   const incrementQuantity = () => {
-    if (quantity < product.stockQuantity) {
+    if (product && quantity < product.stockQuantity) {
       setQuantity(quantity + 1);
     }
   };
 
   const handleAddToCart = async () => {
+    if (!product) return;
+    
     setAddingToCart(true);
     try {
       await cartService.addToCart(product.id, quantity);
@@ -80,36 +91,55 @@ const ProductDetail = () => {
     return <div className="not-found">Product not found</div>;
   }
 
-  const discountedPrice = product.discount > 0 
-    ? product.price * (1 - product.discount / 100) 
+  // Calculate the main image URL here after we've confirmed product is not null
+  const mainImageUrl = selectedImage
+    ? `${process.env.REACT_APP_API_URL}/uploads/${selectedImage}`
+    : product.primaryImageUrl
+      ? `${process.env.REACT_APP_API_URL}/uploads/${product.primaryImageUrl}`
+      : '/placeholder-product.jpg';
+
+  const discountedPrice = product.discount > 0
+    ? product.price * (1 - product.discount / 100)
     : product.price;
 
   return (
     <div className="product-detail-container">
       <div className="breadcrumb">
-        <Link to="/">Home</Link> / 
-        <Link to="/products">Products</Link> / 
-        <Link to={`/products?category=${product.categoryId}`}>{product.category}</Link> / 
+        <Link to="/">Home</Link> /
+        <Link to="/products">Products</Link> /
+        <Link to={`/products?category=${product.categoryId}`}>{product.category}</Link> /
         <span>{product.name}</span>
       </div>
-      
+
       <div className="product-detail-content">
         <div className="product-images">
           <div className="main-image">
-            <img src={product.imageUrl} alt={product.name} />
+            {/* Fix: Use mainImageUrl instead of product.imageUrl */}
+            <img src={mainImageUrl} alt={product.name} />
             {product.discount > 0 && (
               <div className="discount-badge">-{product.discount}%</div>
             )}
           </div>
           <div className="thumbnail-images">
             {product.images && product.images.map((image, index) => (
-              <div className="thumbnail" key={index}>
-                <img src={image} alt={`${product.name} - view ${index + 1}`} />
+              <div
+                key={index}
+                className={`thumbnail ${selectedImage === image.imageUrl ? 'active' : ''}`}
+                onClick={() => setSelectedImage(image.imageUrl)}
+              >
+                <img
+                  src={`${process.env.REACT_APP_API_URL}/uploads/${image.imageUrl}`}
+                  alt={`${product.name} - view ${index + 1}`}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = '/placeholder-product.jpg';
+                  }}
+                />
               </div>
             ))}
           </div>
         </div>
-        
+
         <div className="product-info">
           <h1 className="product-name">{product.name}</h1>
           <div className="product-meta">
@@ -122,7 +152,7 @@ const ProductDetail = () => {
               <span className="rating-count">({product.reviewCount} reviews)</span>
             </div>
           </div>
-          
+
           <div className="product-price">
             {product.discount > 0 ? (
               <>
@@ -134,7 +164,7 @@ const ProductDetail = () => {
               <span className="regular-price">${product.price.toFixed(2)}</span>
             )}
           </div>
-          
+
           <div className="product-availability">
             <span className={product.stockQuantity > 0 ? "in-stock" : "out-of-stock"}>
               {product.stockQuantity > 0 ? "In Stock" : "Out of Stock"}
@@ -143,35 +173,35 @@ const ProductDetail = () => {
               <span className="low-stock">Only {product.stockQuantity} left!</span>
             )}
           </div>
-          
+
           <div className="product-description">
             <p>{product.shortDescription}</p>
           </div>
-          
+
           <div className="product-actions">
             <div className="quantity-selector">
               <button onClick={decrementQuantity} disabled={quantity <= 1}>-</button>
-              <input 
-                type="number" 
-                value={quantity} 
+              <input
+                type="number"
+                value={quantity}
                 onChange={handleQuantityChange}
                 min="1"
                 max={product.stockQuantity}
               />
               <button onClick={incrementQuantity} disabled={quantity >= product.stockQuantity}>+</button>
             </div>
-            
-            <button 
-              className="add-to-cart-btn" 
+
+            <button
+              className="add-to-cart-btn"
               onClick={handleAddToCart}
               disabled={addingToCart || product.stockQuantity === 0}
             >
               {addingToCart ? "Adding..." : "Add to Cart"}
             </button>
-            
+
             <button className="wishlist-btn">Add to Wishlist</button>
           </div>
-          
+
           {addedToCart && (
             <div className="added-to-cart-message">
               Product added to cart successfully!
@@ -179,36 +209,36 @@ const ProductDetail = () => {
           )}
         </div>
       </div>
-      
+
       <div className="product-tabs">
         <div className="tab-headers">
-          <button 
-            className={activeTab === 'description' ? 'active' : ''} 
+          <button
+            className={activeTab === 'description' ? 'active' : ''}
             onClick={() => setActiveTab('description')}
           >
             Description
           </button>
-          <button 
-            className={activeTab === 'specifications' ? 'active' : ''} 
+          <button
+            className={activeTab === 'specifications' ? 'active' : ''}
             onClick={() => setActiveTab('specifications')}
           >
             Specifications
           </button>
-          <button 
-            className={activeTab === 'reviews' ? 'active' : ''} 
+          <button
+            className={activeTab === 'reviews' ? 'active' : ''}
             onClick={() => setActiveTab('reviews')}
           >
             Reviews ({product.reviewCount})
           </button>
         </div>
-        
+
         <div className="tab-content">
           {activeTab === 'description' && (
             <div className="description-tab">
               <p>{product.description}</p>
             </div>
           )}
-          
+
           {activeTab === 'specifications' && (
             <div className="specifications-tab">
               <table>
@@ -223,7 +253,7 @@ const ProductDetail = () => {
               </table>
             </div>
           )}
-          
+
           {activeTab === 'reviews' && (
             <div className="reviews-tab">
               {product.reviews && product.reviews.length > 0 ? (
@@ -248,11 +278,11 @@ const ProductDetail = () => {
           )}
         </div>
       </div>
-      
+
       {/* Add the RelatedProducts component */}
-      <RelatedProducts 
-        currentProductId={product.id} 
-        categoryId={product.categoryId} 
+      <RelatedProducts
+        currentProductId={product.id}
+        categoryId={product.categoryId}
       />
     </div>
   );

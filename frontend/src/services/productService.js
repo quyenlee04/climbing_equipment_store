@@ -111,19 +111,72 @@ const productService = {
   },
   
   // Create a new product
+  // Update the createProduct method
   createProduct: async (productData) => {
     try {
-      const response = await api.post(API_ENDPOINTS.PRODUCTS, productData);
+      // Create a FormData object instead of sending JSON
+      const formData = new FormData();
+      
+      // Add all product fields to the FormData
+      Object.keys(productData).forEach(key => {
+        // Skip null or undefined values
+        if (productData[key] !== null && productData[key] !== undefined) {
+          // Handle file objects specially
+          if (key === 'image' && productData[key] instanceof File) {
+            formData.append('image', productData[key]);
+          } 
+          // Handle other fields
+          else if (typeof productData[key] !== 'object') {
+            formData.append(key, productData[key]);
+          }
+        }
+      });
+      
+      // Send the request with FormData
+      const response = await api.request(API_ENDPOINTS.PRODUCTS, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          // Don't set Content-Type here, it will be set automatically with the boundary
+        }
+      });
+      
       return response.data;
     } catch (error) {
       throw error;
     }
   },
   
-  // Update an existing product
+  // Update the updateProduct method similarly
   updateProduct: async (id, productData) => {
     try {
-      const response = await api.put(`${API_ENDPOINTS.PRODUCTS}/${id}`, productData);
+      // Create a FormData object
+      const formData = new FormData();
+      
+      // Add all product fields to the FormData
+      Object.keys(productData).forEach(key => {
+        // Skip null or undefined values
+        if (productData[key] !== null && productData[key] !== undefined) {
+          // Handle file objects specially
+          if (key === 'image' && productData[key] instanceof File) {
+            formData.append('image', productData[key]);
+          } 
+          // Handle other fields
+          else if (typeof productData[key] !== 'object') {
+            formData.append(key, productData[key]);
+          }
+        }
+      });
+      
+      // Send the request with FormData
+      const response = await api.request(`${API_ENDPOINTS.PRODUCTS}/${id}`, {
+        method: 'PUT',
+        body: formData,
+        headers: {
+          // Don't set Content-Type here, it will be set automatically with the boundary
+        }
+      });
+      
       return response.data;
     } catch (error) {
       throw error;

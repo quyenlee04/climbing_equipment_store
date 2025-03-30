@@ -3,14 +3,26 @@ import { Link } from 'react-router-dom';
 import '../../styles/ProductCard.css';
 
 const ProductCard = ({ product }) => {
+  // Function to render the product image
+  const imageUrl = product.primaryImageUrl
+    ? `${process.env.REACT_APP_API_URL}/uploads/${product.primaryImageUrl}`
+    : '/placeholder-product.jpg';
+
   return (
     <div className="product-card">
-      <div className="product-image">
-        <img src={product.imageUrl} alt={product.name} />
-        {product.discount > 0 && (
-          <div className="discount-badge">-{product.discount}%</div>
-        )}
-      </div>
+      <Link to={`/products/${product.id}`}>
+        <div className="product-image-container">
+          <img
+            src={imageUrl}
+            alt={product.name}
+            className="product-image"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = '/placeholder-product.jpg';
+            }}
+          />
+        </div>
+      </Link>
       <div className="product-info">
         <h3 className="product-name">
           <Link to={`/products/${product.id}`}>{product.name}</Link>

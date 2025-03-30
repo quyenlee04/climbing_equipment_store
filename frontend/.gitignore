@@ -10,7 +10,7 @@ package.json
 /coverage
 /public/assets
 /src/assets
-
+.env
 # production
 /build
 

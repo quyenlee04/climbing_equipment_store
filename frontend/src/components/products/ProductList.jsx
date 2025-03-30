@@ -12,14 +12,51 @@ const ProductList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
-
-  // Get filter values from URL params
-  const brandFilter = searchParams.get('brand') || '';
-  const categoryFilter = searchParams.get('category') || '';
-  const searchQuery = searchParams.get('search') || '';
+  
+  const selectedBrand = searchParams.get('brand') || '';
+  const selectedCategory = searchParams.get('category') || '';
   const sortBy = searchParams.get('sort') || 'newest';
-
+  
   useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      try {
+        const params = {};
+        if (selectedBrand) params.brandId = selectedBrand;
+        if (selectedCategory) params.categoryId = selectedCategory;
+        if (searchParams.get('search')) params.search = searchParams.get('search');
+        
+        const data = await productService.getProducts({ params });
+        
+        // Sort products based on sortBy parameter
+        let sortedProducts = [...data];
+        switch (sortBy) {
+          case 'price-low-high':
+            sortedProducts.sort((a, b) => a.price - b.price);
+            break;
+          case 'price-high-low':
+            sortedProducts.sort((a, b) => b.price - a.price);
+            break;
+          case 'name-a-z':
+            sortedProducts.sort((a, b) => a.name.localeCompare(b.name));
+            break;
+          case 'name-z-a':
+            sortedProducts.sort((a, b) => b.name.localeCompare(a.name));
+            break;
+          default: // newest
+            sortedProducts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        }
+        
+        setProducts(sortedProducts);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching products:', err);
+        setError('Failed to load products. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
     const fetchFilters = async () => {
       try {
         const [brandsData, categoriesData] = await Promise.all([
@@ -30,41 +67,13 @@ const ProductList = () => {
         setCategories(categoriesData);
       } catch (err) {
         console.error('Error fetching filters:', err);
-        setError('Failed to load filters. Please try again later.');
       }
     };
-
-    fetchFilters();
-  }, []);
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
-      try {
-        // Create params object for filtering
-        const params = {
-          ...(brandFilter && { brand: brandFilter }),
-          ...(categoryFilter && { category: categoryFilter }),
-          ...(searchQuery && { search: searchQuery }),
-          ...(sortBy && { sort: sortBy })
-        };
-
-        const data = await productService.getProducts(params);
-        setProducts(data);
-        setError(null);
-      } catch (err) {
-        console.error('Error fetching products:', err);
-        setError('Failed to load products. Please try again later.');
-        setProducts([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
+    
     fetchProducts();
-  }, [brandFilter, categoryFilter, searchQuery, sortBy]);
-
-  // Add these missing handler functions
+    fetchFilters();
+  }, [selectedBrand, selectedCategory, sortBy, searchParams]);
+  
   const handleBrandChange = (brandId) => {
     const newParams = new URLSearchParams(searchParams);
     if (brandId) {
@@ -74,7 +83,7 @@ const ProductList = () => {
     }
     setSearchParams(newParams);
   };
-
+  
   const handleCategoryChange = (categoryId) => {
     const newParams = new URLSearchParams(searchParams);
     if (categoryId) {
@@ -84,85 +93,65 @@ const ProductList = () => {
     }
     setSearchParams(newParams);
   };
-
-  const handleClearFilters = () => {
-    setSearchParams(new URLSearchParams());
-  };
-
-  // Add this function before handleSortChange
-  const handleFilterChange = (filterType, value) => {
+  
+  const handleSortChange = (e) => {
     const newParams = new URLSearchParams(searchParams);
-    
-    if (value) {
-      newParams.set(filterType, value);
-    } else {
-      newParams.delete(filterType);
-    }
-    
+    newParams.set('sort', e.target.value);
     setSearchParams(newParams);
   };
   
-  const handleSortChange = (sortValue) => {
-    handleFilterChange('sort', sortValue);
+  const handleClearFilters = () => {
+    const newParams = new URLSearchParams();
+    if (searchParams.get('search')) {
+      newParams.set('search', searchParams.get('search'));
+    }
+    setSearchParams(newParams);
   };
-
-  const clearFilters = () => {
-    setSearchParams({});
-  };
-
-  if (error && !loading) {
-    return <div className="error-message">{error}</div>;
-  }
-
-  // Around line 124, you likely have code like this:
+  
   return (
     <div className="product-list-container">
-      <div className="product-list-header">
-        <h1>Products</h1>
-        <div className="sort-options">
-          <label htmlFor="sort">Sort by:</label>
-          <select 
-            id="sort" 
-            value={sortBy} 
-            onChange={(e) => handleSortChange(e.target.value)}
-          >
-            <option value="newest">Newest</option>
-            <option value="price_low">Price: Low to High</option>
-            <option value="price_high">Price: High to Low</option>
-            <option value="popular">Most Popular</option>
-          </select>
-        </div>
-      </div>
+      <FilterSidebar
+        brands={brands}
+        categories={categories}
+        selectedBrand={selectedBrand}
+        selectedCategory={selectedCategory}
+        onBrandChange={handleBrandChange}
+        onCategoryChange={handleCategoryChange}
+        onClearFilters={handleClearFilters}
+      />
       
       <div className="product-list-content">
-        <FilterSidebar
-          brands={brands}
-          categories={categories}
-          selectedBrand={brandFilter}
-          selectedCategory={categoryFilter}
-          onBrandChange={handleBrandChange}
-          onCategoryChange={handleCategoryChange}
-          onClearFilters={handleClearFilters}
-        />
-      
-        <div className="product-grid-container">
-          {loading ? (
-            <div className="loading-spinner">Loading products...</div>
-          ) : error ? (
-            <div className="error-message">{error}</div>
-          ) : products && products.length > 0 ? ( // Add null check here
-            <div className="product-grid">
-              {products.map(product => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          ) : (
-            <div className="no-products">
-              <p>No products found matching your criteria.</p>
-              <button onClick={handleClearFilters}>Clear Filters</button>
-            </div>
-          )}
+        <div className="product-list-header">
+          <h1>Products</h1>
+          <div className="sort-container">
+            <label htmlFor="sort-by">Sort by:</label>
+            <select 
+              id="sort-by" 
+              value={sortBy}
+              onChange={handleSortChange}
+            >
+              <option value="newest">Newest</option>
+              <option value="price-low-high">Price: Low to High</option>
+              <option value="price-high-low">Price: High to Low</option>
+              <option value="name-a-z">Name: A to Z</option>
+              <option value="name-z-a">Name: Z to A</option>
+            </select>
+          </div>
         </div>
+        
+        {loading ? (
+          <div className="loading">Loading products...</div>
+        ) : error ? (
+          <div className="error-message">{error}</div>
+        ) : products.length === 0 ? (
+          <div className="no-products">No products found. Try adjusting your filters.</div>
+        ) : (
+          <div className="products-grid">
+            {products.map(product => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

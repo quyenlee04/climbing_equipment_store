@@ -10,10 +10,6 @@ const FilterSidebar = ({
   onCategoryChange,
   onClearFilters
 }) => {
-  // Add null checks for brands and categories
-  const brandsArray = Array.isArray(brands) ? brands : [];
-  const categoriesArray = Array.isArray(categories) ? categories : [];
-
   return (
     <div className="filter-sidebar">
       <div className="filter-header">
@@ -23,69 +19,71 @@ const FilterSidebar = ({
         </button>
       </div>
       
-      <div className="filter-section">
-        <h4>Brands</h4>
-        <div className="filter-options">
-          <div className="filter-option">
-            <input
-              type="radio"
-              id="brand-all"
-              name="brand"
-              value=""
-              checked={!selectedBrand}
-              onChange={() => onBrandChange('')}
-            />
-            <label htmlFor="brand-all">All Brands</label>
-          </div>
-          
-          {/* Use the safe brandsArray instead of brands directly */}
-          {brandsArray.map(brand => (
-            <div className="filter-option" key={brand.id}>
+      {brands && brands.length > 0 && (
+        <div className="filter-section">
+          <h4>Brands</h4>
+          <div className="filter-options">
+            <div className="filter-option">
               <input
                 type="radio"
-                id={`brand-${brand.id}`}
+                id="all-brands"
                 name="brand"
-                value={brand.id}
-                checked={selectedBrand === brand.id.toString()}
-                onChange={() => onBrandChange(brand.id)}
+                value=""
+                checked={!selectedBrand}
+                onChange={() => onBrandChange('')}
               />
-              <label htmlFor={`brand-${brand.id}`}>{brand.name}</label>
+              <label htmlFor="all-brands">All Brands</label>
             </div>
-          ))}
-        </div>
-      </div>
-      
-      <div className="filter-section">
-        <h4>Categories</h4>
-        <div className="filter-options">
-          <div className="filter-option">
-            <input
-              type="radio"
-              id="category-all"
-              name="category"
-              value=""
-              checked={!selectedCategory}
-              onChange={() => onCategoryChange('')}
-            />
-            <label htmlFor="category-all">All Categories</label>
+            
+            {brands.map(brand => (
+              <div className="filter-option" key={brand.id}>
+                <input
+                  type="radio"
+                  id={`brand-${brand.id}`}
+                  name="brand"
+                  value={brand.id}
+                  checked={selectedBrand === brand.id.toString()}
+                  onChange={() => onBrandChange(brand.id.toString())}
+                />
+                <label htmlFor={`brand-${brand.id}`}>{brand.name}</label>
+              </div>
+            ))}
           </div>
-          
-          {/* Use the safe categoriesArray instead of categories directly */}
-          {categoriesArray.map(category => (
-            <div className="filter-option" key={category.id}>
+        </div>
+      )}
+      
+      {categories && categories.length > 0 && (
+        <div className="filter-section">
+          <h4>Categories</h4>
+          <div className="filter-options">
+            <div className="filter-option">
               <input
                 type="radio"
-                id={`category-${category.id}`}
+                id="all-categories"
                 name="category"
-                value={category.id}
-                checked={selectedCategory === category.id.toString()}
-                onChange={() => onCategoryChange(category.id)}
+                value=""
+                checked={!selectedCategory}
+                onChange={() => onCategoryChange('')}
               />
-              <label htmlFor={`category-${category.id}`}>{category.name}</label>
+              <label htmlFor="all-categories">All Categories</label>
             </div>
-          ))}
+            
+            {categories.map(category => (
+              <div className="filter-option" key={category.id}>
+                <input
+                  type="radio"
+                  id={`category-${category.id}`}
+                  name="category"
+                  value={category.id}
+                  checked={selectedCategory === category.id.toString()}
+                  onChange={() => onCategoryChange(category.id.toString())}
+                />
+                <label htmlFor={`category-${category.id}`}>{category.name}</label>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

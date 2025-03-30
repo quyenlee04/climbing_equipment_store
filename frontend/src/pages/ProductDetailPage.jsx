@@ -6,11 +6,11 @@ import ProductDetail from '../components/products/ProductDetail';
 const ProductDetailPage = () => {
   return (
     <div className="product-detail-page">
-      <Header />
+
       <div className="page-content">
         <ProductDetail />
       </div>
-      <Footer />
+
     </div>
   );
 };

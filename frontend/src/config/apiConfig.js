@@ -8,7 +8,6 @@ const API_ENDPOINTS = {
   PRODUCTS: '/products',
   PRODUCT_DETAILS: (id) => `/products/${id}`,
   BRANDS: '/brands',
-  CATEGORIES: '/categories',
   REVIEWS: '/reviews',
   
   // User Service
