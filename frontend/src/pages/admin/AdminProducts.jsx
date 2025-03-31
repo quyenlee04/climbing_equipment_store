@@ -4,6 +4,8 @@ import productService from '../../services/productService';
 import categoryService from '../../services/categoryService';
 import brandService from '../../services/brandService';
 import '../../styles/admin/AdminProducts.css';
+import AdminLayout from '../../components/admin/AdminLayout';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const AdminProducts = () => {
   // State for products list
@@ -11,7 +13,8 @@ const AdminProducts = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
-  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   // State for form
   const [product, setProduct] = useState({
     name: '',
@@ -25,15 +28,15 @@ const AdminProducts = () => {
     dimensions: '',
     isActive: true
   });
-  
+
   // State for file upload
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
-  
+
   // State for edit mode
   const [editMode, setEditMode] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  
+
   // State for categories and brands
   const [categories, setCategories] = useState([]);
   const [brands, setBrands] = useState([]);
@@ -115,57 +118,53 @@ const AdminProducts = () => {
     setPreviewUrl(null);
     setEditMode(false);
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     setError(null);
-    
+
     try {
       // Validate required fields
-      if (!product.name || !product.description || !product.price || !product.stockQuantity) {
-        throw new Error('Please fill in all required fields');
+      if (!product.name?.trim()) {
+        throw new Error('Product name is required');
       }
-      
-      // Create FormData object
+
       const formData = new FormData();
-      
+
       // Add all product fields to FormData
-      formData.append('name', product.name);
-      formData.append('description', product.description);
-      formData.append('price', product.price);
-      formData.append('stockQuantity', product.stockQuantity);
-      
+      formData.append('name', product.name.trim());
+      formData.append('description', product.description || '');
+      formData.append('price', product.price || 0);
+      formData.append('stockQuantity', product.stockQuantity || 0);
+
+      // Add optional fields if they exist
       if (product.categoryId) formData.append('categoryId', product.categoryId);
       if (product.brandId) formData.append('brandId', product.brandId);
       if (product.sku) formData.append('sku', product.sku);
       if (product.weight) formData.append('weight', product.weight);
       if (product.dimensions) formData.append('dimensions', product.dimensions);
-      formData.append('isActive', product.isActive);
-      
+      if (product.isActive !== undefined) formData.append('isActive', product.isActive);
+
       // Add image if selected
       if (selectedFile) {
         formData.append('image', selectedFile);
       }
-      
-      console.log('Submitting product with FormData');
-      
-      let savedProduct;
-      if (editMode && product.id) {
-        savedProduct = await productService.updateProduct(product.id, formData);
-      } else {
-        savedProduct = await productService.createProduct(formData);
-      }
-      
+
+      const result = await productService.createProduct(formData);
+      setSuccess('Product created successfully!');
+      setIsModalOpen(false);
       resetForm();
-      setSuccess(`Product ${editMode ? 'updated' : 'created'} successfully!`);
-      fetchProducts(); // Refresh the product list
+      fetchProducts();
     } catch (err) {
+      setError(err.message || 'Error saving product');
       console.error('Error saving product:', err);
-      setError(err.message || 'Failed to save product');
     } finally {
       setSubmitting(false);
     }
+  };
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    resetForm();
   };
 
   const handleEdit = (productToEdit) => {
@@ -182,17 +181,22 @@ const AdminProducts = () => {
       dimensions: productToEdit.dimensions || '',
       isActive: productToEdit.isActive
     });
-    
-    // Set preview URL if product has an image
+
     if (productToEdit.primaryImageUrl) {
       setPreviewUrl(`${process.env.REACT_APP_API_URL}/uploads/${productToEdit.primaryImageUrl}`);
     } else {
       setPreviewUrl(null);
     }
-    
-    setSelectedFile(null); // Clear selected file when editing
+
+    setSelectedFile(null);
     setEditMode(true);
-    window.scrollTo(0, 0); // Scroll to form
+    setIsModalOpen(true);
+  };
+
+  const handleAddNew = () => {
+    resetForm();
+    setEditMode(false);
+    setIsModalOpen(true);
   };
 
   const handleDelete = async (id) => {
@@ -205,277 +209,312 @@ const AdminProducts = () => {
         console.error('Error deleting product:', err);
         setError('Failed to delete product. Please try again.');
       }
-    }
+    };
   };
 
+  if (loading) {
+    return (
+      <AdminLayout title="Product">
+        <div className="loading">Loading Products...</div>
+      </AdminLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <AdminLayout title="Product">
+        <div className="error-message">{error}</div>
+      </AdminLayout>
+    );
+  }
+
   return (
-    <Container className="admin-products-container">
-      <h1 className="my-4">{editMode ? 'Edit Product' : 'Add New Product'}</h1>
-      
-      {error && <Alert variant="danger">{error}</Alert>}
-      {success && <Alert variant="success">{success}</Alert>}
-      
-      <Form onSubmit={handleSubmit} className="product-form mb-5">
-        <Row>
-          <Col md={8}>
-            <Form.Group className="mb-3">
-              <Form.Label>Product Name *</Form.Label>
-              <Form.Control
-                type="text"
-                name="name"
-                value={product.name}
-                onChange={handleInputChange}
-                required
-              />
-            </Form.Group>
-            
-            <Form.Group className="mb-3">
-              <Form.Label>Description *</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={4}
-                name="description"
-                value={product.description}
-                onChange={handleInputChange}
-                required
-              />
-            </Form.Group>
-            
-            <Row>
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Price *</Form.Label>
-                  <Form.Control
-                    type="number"
-                    step="0.01"
-                    name="price"
-                    value={product.price}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Stock Quantity *</Form.Label>
-                  <Form.Control
-                    type="number"
-                    name="stockQuantity"
-                    value={product.stockQuantity}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-            
-            <Row>
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Category</Form.Label>
-                  <Form.Select
-                    name="categoryId"
-                    value={product.categoryId}
-                    onChange={handleInputChange}
-                  >
-                    <option value="">Select Category</option>
-                    {categories.map(category => (
-                      <option key={category.id} value={category.id}>
-                        {category.name}
-                      </option>
-                    ))}
-                  </Form.Select>
-                </Form.Group>
-              </Col>
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Brand</Form.Label>
-                  <Form.Select
-                    name="brandId"
-                    value={product.brandId}
-                    onChange={handleInputChange}
-                  >
-                    <option value="">Select Brand</option>
-                    {brands.map(brand => (
-                      <option key={brand.id} value={brand.id}>
-                        {brand.name}
-                      </option>
-                    ))}
-                  </Form.Select>
-                </Form.Group>
-              </Col>
-            </Row>
-            
-            <Row>
-              <Col md={4}>
-                <Form.Group className="mb-3">
-                  <Form.Label>SKU</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="sku"
-                    value={product.sku}
-                    onChange={handleInputChange}
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={4}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Weight</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="weight"
-                    value={product.weight}
-                    onChange={handleInputChange}
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={4}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Dimensions</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="dimensions"
-                    value={product.dimensions}
-                    onChange={handleInputChange}
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-            
-            <Form.Group className="mb-3">
-              <Form.Check
-                type="checkbox"
-                label="Active"
-                name="isActive"
-                checked={product.isActive}
-                onChange={handleInputChange}
-              />
-            </Form.Group>
-          </Col>
-          
-          <Col md={4}>
-            <Form.Group className="mb-3">
-              <Form.Label>Product Image</Form.Label>
-              <Form.Control
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-              />
-              <div className="image-preview-container mt-3">
-                {previewUrl ? (
-                  <img
-                    src={previewUrl}
-                    alt="Product preview"
-                    className="img-thumbnail"
-                  />
-                ) : (
-                  <div className="no-image-placeholder">No image selected</div>
-                )}
-              </div>
-            </Form.Group>
-          </Col>
-        </Row>
-        
-        <div className="d-flex mt-4">
-          <Button 
-            variant="primary" 
-            type="submit" 
-            className="me-2"
-            disabled={submitting}
-          >
-            {submitting ? (
-              <>
-                <Spinner as="span" animation="border" size="sm" className="me-2" />
-                {editMode ? 'Updating...' : 'Creating...'}
-              </>
-            ) : (
-              editMode ? 'Update Product' : 'Create Product'
-            )}
-          </Button>
-          <Button 
-            variant="secondary" 
-            onClick={resetForm}
-            disabled={submitting}
-          >
-            Cancel
+    <AdminLayout title="Products">
+      <div className="admin-products-container">
+        <div className="admin-header">
+          <h2>Product Management</h2>
+          <Button className="add-product-btn" onClick={() => setIsModalOpen(true)}>
+            Add New Product
           </Button>
         </div>
-      </Form>
-      
-      <h2 className="my-4">Product List</h2>
-      
-      {loading ? (
-        <div className="text-center">
-          <Spinner animation="border" />
-        </div>
-      ) : (
-        <Table striped bordered hover responsive>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Image</th>
-              <th>Name</th>
-              <th>Price</th>
-              <th>Stock</th>
-              <th>Category</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.length > 0 ? (
-              products.map(product => (
-                <tr key={product.id}>
-                  <td>{product.id}</td>
-                  <td>
-                    {product.primaryImageUrl ? (
-                      <img
-                        src={`${process.env.REACT_APP_API_URL}/uploads/${product.primaryImageUrl}`}
-                        alt={product.name}
-                        
-                      />
-                    ) : (
-                      'No image'
-                    )}
-                  </td>
-                  <td>{product.name}</td>
-                  <td>${product.price.toFixed(2)}</td>
-                  <td>{product.stockQuantity}</td>
-                  <td>{product.category || 'N/A'}</td>
-                  <td>
-                    <span className={`status-badge ${product.isActive ? 'active' : 'inactive'}`}>
-                      {product.isActive ? 'Active' : 'Inactive'}
-                    </span>
-                  </td>
-                  <td>
-                    <Button
-                      variant="outline-primary"
-                      size="sm"
-                      className="me-2"
-                      onClick={() => handleEdit(product)}
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      variant="outline-danger"
-                      size="sm"
-                      onClick={() => handleDelete(product.id)}
-                    >
-                      Delete
-                    </Button>
-                  </td>
-                </tr>
-              ))
-            ) : (
+
+        {error && <Alert variant="danger">{error}</Alert>}
+        {success && <Alert variant="success">{success}</Alert>}
+
+        {/* Product List Table */}
+        {loading ? (
+          <div className="text-center">
+            <Spinner animation="border" />
+          </div>
+        ) : (
+          <Table striped bordered hover responsive className="products-table">
+            <thead>
               <tr>
-                <td colSpan="8" className="text-center">No products found</td>
+                <th>ID</th>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Actions</th>
               </tr>
-            )}
-          </tbody>
-        </Table>
-      )}
-    </Container>
+            </thead>
+            <tbody>
+              {products.length > 0 ? (
+                products.map(product => (
+                  <tr key={product.id}>
+                    <td>{product.id}</td>
+                    <td>
+                      {product.primaryImageUrl ? (
+                        <img className="product-image"
+                          src={`${process.env.REACT_APP_API_URL}/uploads/${product.primaryImageUrl}`}
+                          alt={product.name}
+
+                        />
+                      ) : (
+                        'No image'
+                      )}
+                    </td>
+                    <td>{product.name}</td>
+                    <td>${product.price.toFixed(2)}</td>
+                    <td>{product.stockQuantity}</td>
+                    <td>{categories.find(cat => cat.id === product.categoryId)?.name || 'No category'}</td>
+                    <td>
+                      <span className={`status-badge ${product.isActive ? 'active' : 'inactive'}`}>
+                        {product.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td>
+                      <Button
+                        variant="outline-primary"
+                        size="sm"
+                        className="me-2"
+                        onClick={() => handleEdit(product)}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        variant="outline-danger"
+                        size="sm"
+                        onClick={() => handleDelete(product.id)}
+                      >
+                        Delete
+                      </Button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="8" className="text-center">No products found</td>
+                </tr>
+              )}
+            </tbody>
+          </Table>
+        )}
+
+        {/* Product Form Modal */}
+
+        {isModalOpen && (
+          <div className="product-form-overlay">
+            <div className="product-form-modal">
+              <button className="modal-close-button" onClick={() => setIsModalOpen(false)}>×</button>
+              <h3 className="form-title">{editMode ? 'Edit Product' : 'Add New Product'}</h3>
+
+              <Form onSubmit={handleSubmit}>
+                <Row className="mb-3">
+                  <Col md={6}>
+                    <Form.Group>
+                      <Form.Label className="required">Name</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="name"
+                        value={product.name}
+                        onChange={handleInputChange}
+                        required
+                      />
+                    </Form.Group>
+                  </Col>
+
+                  <Col md={6}>
+                    <Form.Group>
+                      <Form.Label>SKU</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="sku"
+                        value={product.sku}
+                        onChange={handleInputChange}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+
+                <Form.Group className="mb-3">
+                  <Form.Label>Description <span className="text-danger">*</span></Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    name="description"
+                    value={product.description}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </Form.Group>
+
+                <Row>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Price <span className="text-danger">*</span></Form.Label>
+                      <Form.Control
+                        type="number"
+                        step="0.01"
+                        name="price"
+                        value={product.price}
+                        onChange={handleInputChange}
+                        required
+                      />
+                    </Form.Group>
+                  </Col>
+
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Stock Quantity <span className="text-danger">*</span></Form.Label>
+                      <Form.Control
+                        type="number"
+                        name="stockQuantity"
+                        value={product.stockQuantity}
+                        onChange={handleInputChange}
+                        required
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+
+                <Row>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Category</Form.Label>
+                      <Form.Select
+                        name="categoryId"
+                        value={product.categoryId}
+                        onChange={handleInputChange}
+                      >
+                        <option value="">Select Category</option>
+                        {categories.map(category => (
+                          <option key={category.id} value={category.id}>
+                            {category.name}
+                          </option>
+                        ))}
+                      </Form.Select>
+                    </Form.Group>
+                  </Col>
+
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Brand</Form.Label>
+                      <Form.Select
+                        name="brandId"
+                        value={product.brandId}
+                        onChange={handleInputChange}
+                      >
+                        <option value="">Select Brand</option>
+                        {brands.map(brand => (
+                          <option key={brand.id} value={brand.id}>
+                            {brand.name}
+                          </option>
+                        ))}
+                      </Form.Select>
+                    </Form.Group>
+                  </Col>
+                </Row>
+
+                <Row>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Weight</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="weight"
+                        value={product.weight}
+                        onChange={handleInputChange}
+                      />
+                    </Form.Group>
+                  </Col>
+
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Dimensions</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="dimensions"
+                        value={product.dimensions}
+                        onChange={handleInputChange}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+
+                <Form.Group className="mb-3">
+                  <Form.Check
+                    type="checkbox"
+                    label="Active"
+                    name="isActive"
+                    checked={product.isActive}
+                    onChange={handleInputChange}
+                  />
+                </Form.Group>
+
+                <Form.Group className="mb-4">
+                  <Form.Label>Product Image</Form.Label>
+                  <Form.Control
+                    type="file"
+                    onChange={handleFileChange}
+                    accept="image/*"
+                  />
+                  {previewUrl && (
+                    <img
+                      src={previewUrl}
+                      alt="Preview"
+                      className="mt-2"
+                      style={{ maxWidth: '200px' }}
+                    />
+                  )}
+                </Form.Group>
+
+                <div className="d-flex justify-content-end gap-2">
+                  <Button
+                    variant="secondary"
+                    onClick={() => setIsModalOpen(false)}
+                    disabled={submitting}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="primary"
+                    type="submit"
+                    className="submit-button"
+                    disabled={submitting}
+                  >
+                    {submitting ? (
+                      <>
+                        <Spinner as="span" animation="border" size="sm" className="me-2" />
+                        {editMode ? 'Updating...' : 'Creating...'}
+                      </>
+                    ) : (
+                      editMode ? 'Update Product' : 'Create Product'
+                    )}
+                  </Button>
+                </div>
+              </Form>
+            </div>
+          </div>
+        )}
+      </div>
+    </AdminLayout>
   );
 };
 
+
 export default AdminProducts;
+
+

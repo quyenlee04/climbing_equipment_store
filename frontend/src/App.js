@@ -9,7 +9,7 @@ import Footer from './components/layout/Footer';
 import HomePage from './pages/HomePage';
 import ProductsPage from './pages/ProductsPage';
 import ProductDetailPage from './pages/ProductDetailPage';
-// import CartPage from './pages/CartPage';
+import CartPage from './pages/CartPage';
 // import CheckoutPage from './pages/CheckoutPage';
 // import OrderConfirmationPage from './pages/OrderConfirmationPage';
 import Login from './pages/Login';
@@ -18,9 +18,10 @@ import Register from './pages/Register';
 // import OrderHistory from './pages/OrderHistory';
 // import AboutPage from './pages/AboutPage';
 // import ContactPage from './pages/ContactPage';
-
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 // Admin Components
-import AdminLogin from './pages/admin/AdminLogin';
+
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProducts from './pages/admin/AdminProducts';
 import AdminCategories from './pages/admin/AdminCategories';
@@ -34,9 +35,27 @@ import AdminRoute from './components/auth/AdminRoute';
 
 function App() {
   return (
+    
     <Router>
       <AuthProvider>
         <CartProvider>
+        <div className="App">
+            <ToastContainer
+              position="top-right"
+              autoClose={3000}
+              hideProgressBar={false}
+              newestOnTop
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme="colored"
+              style={{
+                fontSize: '14px',
+                fontWeight: '500'
+              }}
+            />
           <Routes>
             {/* Admin Routes - No Header/Footer */}
             
@@ -79,13 +98,13 @@ function App() {
                   <Route path="/" element={<HomePage />} />
                   <Route path="/products" element={<ProductsPage />} />
                   <Route path="/products/:id" element={<ProductDetailPage />} />
-                  {/* <Route path="/cart" element={<CartPage />} />
-                  <Route path="/checkout" element={
+                  <Route path="/cart" element={<CartPage />} />
+                  {/* <Route path="/checkout" element={
                     <ProtectedRoute>
                       <CheckoutPage />
                     </ProtectedRoute>
-                  } />
-                  <Route path="/order-confirmation/:orderId" element={
+                  } /> */}
+                  {/* <Route path="/order-confirmation/:orderId" element={
                     <ProtectedRoute>
                       <OrderConfirmationPage />
                     </ProtectedRoute>
@@ -106,10 +125,12 @@ function App() {
                   <Route path="/contact" element={<ContactPage />} />
                   <Route path="*" element={<Navigate to="/" replace />} /> */}
                 </Routes>
+                
                 <Footer />
               </>
             } />
           </Routes>
+          </div>
         </CartProvider>
       </AuthProvider>
     </Router>

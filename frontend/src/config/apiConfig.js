@@ -7,6 +7,7 @@ const API_ENDPOINTS = {
   // Product Service
   PRODUCTS: '/products',
   PRODUCT_DETAILS: (id) => `/products/${id}`,
+  PRODUCT_INFO: (id) => `/products/${id}/info`,
   BRANDS: '/brands',
   REVIEWS: '/reviews',
   
@@ -17,9 +18,11 @@ const API_ENDPOINTS = {
   ADDRESSES: '/addresses',
   
   // Cart Service
-  CART: '/cart',
-  ADD_TO_CART: '/cart/add',
-  REMOVE_FROM_CART: '/cart/remove',
+  
+  CART_USER: (userId) => `/cart/user/${userId}`,
+  CART_ITEMS: (userId) => `/cart/user/${userId}/items`,
+  CART_ITEM: (userId, itemId) => `/cart/user/${userId}/items/${itemId}`,
+  CART_CLEAR: (userId) => `/cart/user/${userId}/clear`,
   CHECKOUT: '/checkout',
   
   // Order Service

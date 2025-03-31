@@ -112,37 +112,12 @@ const productService = {
   
   // Create a new product
   // Update the createProduct method
-  createProduct: async (productData) => {
+  createProduct: async (formData) => {
     try {
-      // Create a FormData object instead of sending JSON
-      const formData = new FormData();
-      
-      // Add all product fields to the FormData
-      Object.keys(productData).forEach(key => {
-        // Skip null or undefined values
-        if (productData[key] !== null && productData[key] !== undefined) {
-          // Handle file objects specially
-          if (key === 'image' && productData[key] instanceof File) {
-            formData.append('image', productData[key]);
-          } 
-          // Handle other fields
-          else if (typeof productData[key] !== 'object') {
-            formData.append(key, productData[key]);
-          }
-        }
-      });
-      
-      // Send the request with FormData
-      const response = await api.request(API_ENDPOINTS.PRODUCTS, {
-        method: 'POST',
-        body: formData,
-        headers: {
-          // Don't set Content-Type here, it will be set automatically with the boundary
-        }
-      });
-      
-      return response.data;
+      const response = await api.post(API_ENDPOINTS.PRODUCTS, formData);
+      return response;
     } catch (error) {
+      console.error('Error creating product:', error);
       throw error;
     }
   },

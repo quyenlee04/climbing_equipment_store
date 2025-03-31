@@ -43,12 +43,12 @@ public class CartItemDTO {
         this.productSku = productSku;
     }
     
-    public String getProductImageUrl() {
-        return productImageUrl;
-    }
-    
     public void setProductImageUrl(String productImageUrl) {
         this.productImageUrl = productImageUrl;
+    }
+
+    public String getProductImageUrl() {
+        return productImageUrl;
     }
     
     public Double getProductPrice() {

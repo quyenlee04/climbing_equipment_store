@@ -6,6 +6,12 @@ spring:
     name: cart-service
   config:
     import: optional:configserver:http://localhost:8888
+  cloud:
+    openfeign:
+      client:
+        config:
+          product-service:
+            url: http://localhost:8080/api
   datasource:
     url: jdbc:mysql://localhost:3306/climbing_equipment_store
     username: root

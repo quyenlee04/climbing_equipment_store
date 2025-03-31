@@ -8,7 +8,6 @@ import com.climbing.store.dto.ProductInfoDTO;
 
 @FeignClient(name = "product-service")
 public interface ProductClient {
-    
-    @GetMapping("/api/products/{id}/info")
+    @GetMapping("/products/{id}/info")
     ProductInfoDTO getProductInfo(@PathVariable("id") Integer productId);
 }

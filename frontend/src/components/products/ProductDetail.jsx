@@ -3,6 +3,13 @@ import { useParams, Link } from 'react-router-dom';
 import productService from '../../services/productService';
 import cartService from '../../services/cartService';
 import '../../styles/ProductDetail.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHeart } from '@fortawesome/free-regular-svg-icons';
+import { useCart } from '../../contexts/CartContext';
+import { useAuth } from '../../contexts/AuthContext';
+import { formatPrice } from '../../utils/priceFormatter';
+import { toast } from 'react-toastify'
+
 
 // Add this import at the top
 import RelatedProducts from './RelatedProducts';
@@ -17,6 +24,8 @@ const ProductDetail = () => {
   const [addingToCart, setAddingToCart] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const { addToCart } = useCart();
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -64,16 +73,22 @@ const ProductDetail = () => {
   };
 
   const handleAddToCart = async () => {
-    if (!product) return;
-    
-    setAddingToCart(true);
     try {
-      await cartService.addToCart(product.id, quantity);
-      setAddedToCart(true);
-      setTimeout(() => setAddedToCart(false), 3000);
+      if (!user) {
+        toast.error('Please log in to add items to cart');
+        return;
+      }
+
+      if (!product || !product.id) {
+        throw new Error('Product not found');
+      }
+    
+      await cartService.addToCart(user.id, product.id, quantity);
+      toast.success('Product added to cart successfully');
+      
     } catch (err) {
       console.error('Error adding to cart:', err);
-      setError('Failed to add product to cart. Please try again.');
+      toast.error(err.message || 'Failed to add product to cart');
     } finally {
       setAddingToCart(false);
     }
@@ -156,12 +171,12 @@ const ProductDetail = () => {
           <div className="product-price">
             {product.discount > 0 ? (
               <>
-                <span className="original-price">${product.price.toFixed(2)}</span>
-                <span className="discounted-price">${discountedPrice.toFixed(2)}</span>
+                <span className="original-price">{formatPrice(product.price)}</span>
+                <span className="discounted-price">{formatPrice(product.price)}</span>
                 <span className="discount-percentage">Save {product.discount}%</span>
               </>
             ) : (
-              <span className="regular-price">${product.price.toFixed(2)}</span>
+              <span className="regular-price">{formatPrice(product.price)}</span>
             )}
           </div>
 
@@ -199,7 +214,9 @@ const ProductDetail = () => {
               {addingToCart ? "Adding..." : "Add to Cart"}
             </button>
 
-            <button className="wishlist-btn">Add to Wishlist</button>
+            <button className="wishlist-btn">
+              <FontAwesomeIcon icon={faHeart} />
+            </button>
           </div>
 
           {addedToCart && (

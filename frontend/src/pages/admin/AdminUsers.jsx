@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../components/admin/AdminLayout';
 import userService from '../../services/userService';
 import '../../styles/admin/AdminUsers.css';
+import 'bootstrap/dist/css/bootstrap.min.css'; 
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);

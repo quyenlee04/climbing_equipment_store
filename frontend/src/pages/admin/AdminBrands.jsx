@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../components/admin/AdminLayout';
 import productService from '../../services/productService';
 import '../../styles/admin/AdminBrands.css';
-
+import 'bootstrap/dist/css/bootstrap.min.css'; 
 const AdminBrands = () => {
   const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);

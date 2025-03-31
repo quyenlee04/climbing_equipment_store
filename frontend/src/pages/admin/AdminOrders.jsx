@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../components/admin/AdminLayout';
 import orderService from '../../services/orderService';
 import '../../styles/admin/AdminOrders.css';
+import 'bootstrap/dist/css/bootstrap.min.css'; 
 
 const AdminOrders = () => {
   const [orders, setOrders] = useState([]);

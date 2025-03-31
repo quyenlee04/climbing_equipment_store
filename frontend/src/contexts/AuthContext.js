@@ -4,21 +4,37 @@ import authService from '../services/authService';
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const initAuth = async () => {
       try {
-        if (authService.isAuthenticated()) {
-          // Make sure this function properly retrieves the user data
-          const userData = await authService.getCurrentUser();
-          setCurrentUser(userData);
+        const token = localStorage.getItem('token');
+        const storedUser = localStorage.getItem('user');
+        
+        if (token && storedUser && storedUser !== 'undefined') {
+          try {
+            const parsedUser = JSON.parse(storedUser);
+            if (parsedUser && typeof parsedUser === 'object') {
+              setUser(parsedUser);
+              setIsAuthenticated(true);
+            } else {
+              authService.logout();
+            }
+          } catch (parseError) {
+            console.error('Failed to parse user data:', parseError);
+            authService.logout();
+          }
+        } else {
+          authService.logout();
         }
       } catch (err) {
-        console.error('Failed to initialize auth:', err);
+        console.error('Auth initialization error:', err);
         setError(err);
+        authService.logout();
       } finally {
         setLoading(false);
       }
@@ -30,22 +46,10 @@ export const AuthProvider = ({ children }) => {
   const login = async (credentials) => {
     try {
       setLoading(true);
-      const data = await authService.login(credentials);
-      setCurrentUser(data.user);
-      return data;
-    } catch (err) {
-      setError(err);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const register = async (userData) => {
-    try {
-      setLoading(true);
-      const data = await authService.register(userData);
-      return data;
+      const response = await authService.login(credentials);
+      setUser(response.user);
+      setIsAuthenticated(true);
+      return response;
     } catch (err) {
       setError(err);
       throw err;
@@ -56,23 +60,28 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     authService.logout();
-    setCurrentUser(null);
+    setUser(null);
+    setIsAuthenticated(false);
   };
 
   const value = {
-    currentUser,
+    user,
+    isAuthenticated,
     loading,
     error,
     login,
-    register,
     logout,
-    isAuthenticated: authService.isAuthenticated,
+    setUser,
+    setIsAuthenticated
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
-// Add this custom hook to use the auth context
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {

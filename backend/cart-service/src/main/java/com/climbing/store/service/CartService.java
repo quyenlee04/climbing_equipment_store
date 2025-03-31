@@ -42,8 +42,23 @@ public class CartService {
         }
     }
     
-    @Transactional
-    public CartDTO addItemToCart(Integer userId, Integer productId, Integer quantity) {
+
+// ... existing code ...
+
+@Transactional
+public CartDTO addItemToCart(Integer userId, Integer productId, Integer quantity) {
+    // Validate product exists first
+    try {
+        ProductInfoDTO productInfo = productClient.getProductInfo(productId);
+        if (productInfo == null) {
+            throw new RuntimeException("Product not found: " + productId);
+        }
+        
+        // Check stock availability
+        if (productInfo.getStockQuantity() < quantity) {
+            throw new RuntimeException("Not enough stock available for product: " + productId);
+        }
+
         // Get or create cart
         Cart cart = cartRepository.findByUserId(userId)
                 .orElseGet(() -> {
@@ -55,22 +70,31 @@ public class CartService {
         Optional<CartItem> existingItemOpt = cartItemRepository.findByCartIdAndProductId(cart.getId(), productId);
         
         if (existingItemOpt.isPresent()) {
-            // Update quantity if item already exists
             CartItem existingItem = existingItemOpt.get();
-            existingItem.setQuantity(existingItem.getQuantity() + quantity);
+            int newQuantity = existingItem.getQuantity() + quantity;
+            
+            // Validate total quantity against stock
+            if (newQuantity > productInfo.getStockQuantity()) {
+                throw new RuntimeException("Cannot add more items than available in stock");
+            }
+            
+            existingItem.setQuantity(newQuantity);
             cartItemRepository.save(existingItem);
         } else {
-            // Add new item to cart
             CartItem newItem = new CartItem(productId, quantity);
             cart.addCartItem(newItem);
         }
         
-        // Update cart timestamp
         cart.updateTimestamp();
         Cart updatedCart = cartRepository.save(cart);
         
         return convertToCartDTO(updatedCart);
+    } catch (Exception e) {
+        throw new RuntimeException("Failed to add item to cart: " + e.getMessage());
     }
+}
+
+
     
     @Transactional
     public CartDTO updateCartItem(Integer userId, Integer itemId, Integer quantity) {
@@ -201,5 +225,17 @@ public class CartService {
         cartDTO.setTotalPrice(totalPrice);
         
         return cartDTO;
+    }
+    private CartItemDTO convertToCartItemDTO(CartItem cartItem) {
+        CartItemDTO dto = new CartItemDTO();
+        // ... existing conversion code ...
+        
+        // Get product info from product service
+        ProductInfoDTO productInfo = productClient.getProductInfo(cartItem.getProductId());
+        if (productInfo != null) {
+            dto.setProductImageUrl(productInfo.getImageUrl());
+        }
+        
+        return dto;
     }
 }

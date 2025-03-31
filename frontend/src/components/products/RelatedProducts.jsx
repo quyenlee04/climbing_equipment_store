@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import productService from '../../services/productService';
 import '../../styles/RelatedProducts.css';
+import { formatPrice } from '../../utils/priceFormatter';
+
 
 const RelatedProducts = ({ currentProductId, categoryId }) => {
   const [products, setProducts] = useState([]);
@@ -48,7 +50,12 @@ const RelatedProducts = ({ currentProductId, categoryId }) => {
           <div className="related-product-card" key={product.id}>
             <Link to={`/products/${product.id}`}>
               <div className="related-product-image">
-                <img src={product.imageUrl} alt={product.name} />
+                <img 
+                  src={product.primaryImageUrl ? 
+                    `${process.env.REACT_APP_API_URL}/uploads/${product.primaryImageUrl}` : 
+                    '/placeholder-image.jpg'} 
+                  alt={product.name} 
+                />
                 {product.discount > 0 && (
                   <div className="discount-badge">-{product.discount}%</div>
                 )}
@@ -58,13 +65,13 @@ const RelatedProducts = ({ currentProductId, categoryId }) => {
                 <div className="related-product-price">
                   {product.discount > 0 ? (
                     <>
-                      <span className="original-price">${product.price.toFixed(2)}</span>
+                      <span className="original-price">{formatPrice(product.price)}</span>
                       <span className="discounted-price">
-                        ${(product.price * (1 - product.discount / 100)).toFixed(2)}
+                        {(product.price * (1 - product.discount / 100)).toFixed() } VND
                       </span>
                     </>
                   ) : (
-                    <span className="regular-price">${product.price.toFixed(2)}</span>
+                    <span className="regular-price">{formatPrice(product.price)}</span>
                   )}
                 </div>
               </div>

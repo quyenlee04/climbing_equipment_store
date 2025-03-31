@@ -6,9 +6,10 @@ import logoImg from '../../assets/images/place_your_logo_here_doub.png';
 import { FaShoppingCart, FaUserCircle, FaBars, FaTimes } from 'react-icons/fa';
 
 const Header = () => {
-  const { currentUser, logout, isAuthenticated } = useAuth();
-  const isAdmin = currentUser && currentUser.roles &&
-    (currentUser.roles.includes('ROLE_ADMIN') || currentUser.roles.includes('ADMIN'));
+  const { isAuthenticated, user, logout } = useAuth();
+
+  const isAdmin = user && user.roles &&
+    (user.roles.includes('ROLE_ADMIN') || user.roles.includes('ADMIN'));
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -72,22 +73,24 @@ const Header = () => {
             <span className="cart-count">0</span>
           </Link>
           
-          {isAuthenticated() ? (
-            <div className="user-menu" ref={dropdownRef}>
-              <div className="user-profile" onClick={toggleDropdown}>
-                <FaUserCircle />
-                <span className="username">{currentUser?.username || 'User'}</span>
+          {isAuthenticated ? (
+            <>
+              <div className="user-menu" ref={dropdownRef}>
+                <div className="user-profile" onClick={toggleDropdown}>
+                  <FaUserCircle />
+                  <span className="username">{user?.firstName}</span>
+                </div>
+                
+                <div className={`dropdown-menu ${dropdownOpen ? 'active' : ''}`}>
+                  <Link to="/profile" className="dropdown-item">My Profile</Link>
+                  <Link to="/orders" className="dropdown-item">My Orders</Link>
+                  {user?.roles?.includes('ROLE_ADMIN') && (
+                    <Link to="/admin" className="dropdown-item">Admin Dashboard</Link>
+                  )}
+                  <button onClick={logout} className="logout-btn">Logout</button>
+                </div>
               </div>
-              
-              <div className={`dropdown-menu ${dropdownOpen ? 'active' : ''}`}>
-                <Link to="/profile" className="dropdown-item">My Profile</Link>
-                <Link to="/orders" className="dropdown-item">My Orders</Link>
-                {isAdmin && (
-                  <Link to="/admin" className="dropdown-item">Admin Dashboard</Link>
-                )}
-                <button onClick={logout} className="logout-btn">Logout</button>
-              </div>
-            </div>
+            </>
           ) : (
             <div className="auth-links">
               <Link to="/login" className="login-link">Login</Link>

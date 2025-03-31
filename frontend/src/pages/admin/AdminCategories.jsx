@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../components/admin/AdminLayout';
 import productService from '../../services/productService';
 import '../../styles/admin/AdminCategories.css';
+import 'bootstrap/dist/css/bootstrap.min.css'; 
 
 const AdminCategories = () => {
   const [categories, setCategories] = useState([]);

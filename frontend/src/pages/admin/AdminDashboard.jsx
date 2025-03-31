@@ -3,6 +3,7 @@ import AdminLayout from '../../components/admin/AdminLayout';
 import '../../styles/admin/AdminDashboard.css';
 import dashboardService from '../../services/dashboardService';
 import { Link } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css'; 
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
