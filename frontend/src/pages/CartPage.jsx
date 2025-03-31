@@ -110,7 +110,7 @@ const CartPage = () => {
             </div>
             <div className="summary-total">
               <span>Total</span>
-              <span>{formatPrice(totalPrice)} VND</span>
+              <span>{formatPrice(totalPrice)}</span>
             </div>
             <Link to="/checkout" className="checkout-button" onClick={() => handleCheckout()}>
             

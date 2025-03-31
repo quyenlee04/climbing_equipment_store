@@ -110,7 +110,7 @@ const AdminCategories = () => {
     <AdminLayout title="Categories">
       <div className="admin-categories">
         <div className="admin-actions">
-          <button className="add-button" onClick={handleAddCategory}>
+          <button className="btn-add-product" onClick={handleAddCategory}>
             Add New Category
           </button>
         </div>

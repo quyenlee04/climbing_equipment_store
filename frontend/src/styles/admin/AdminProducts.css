@@ -17,7 +17,7 @@
   border-radius: 4px;  
 }
 
-.add-product-btn, .submit-button {
+.btn-add-product, .submit-button {
   background-color: #b75a74;
   border-color: #b75a74;
   padding: 0.75rem 1.5rem;
@@ -27,7 +27,7 @@
   transition: all 0.3s ease;
 }
 
-.add-product-btn:hover, .submit-button:hover:not(:disabled) {
+.btn-add-product:hover, .submit-button:hover:not(:disabled) {
   background-color: #a04c63;
   border-color: #a04c63;
   transform: translateY(-1px);

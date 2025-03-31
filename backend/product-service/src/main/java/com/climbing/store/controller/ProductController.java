@@ -306,4 +306,28 @@ public ResponseEntity<ProductDTO> addProductImage(
         
         return ResponseEntity.ok(productInfo);
     }
+    
+    @PutMapping("/{id}/stock")
+    public ResponseEntity<Void> updateProductStock(
+            @PathVariable Integer id,
+            @RequestParam Integer quantity) {
+        try {
+            ProductDTO product = productService.getProductById(id);
+            if (product == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            int newQuantity = product.getStockQuantity() - quantity;
+            if (newQuantity < 0) {
+                return ResponseEntity.badRequest().build();
+            }
+
+            product.setStockQuantity(newQuantity);
+            productService.updateProduct(id, product);
+            
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
 }

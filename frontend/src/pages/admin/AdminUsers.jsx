@@ -137,7 +137,7 @@ const AdminUsers = () => {
     <AdminLayout title="Users">
       <div className="admin-users">
         <div className="admin-actions">
-          <button className="add-button" onClick={handleAddUser}>
+          <button className="btn-add-product" onClick={handleAddUser}>
             Add New User
           </button>
         </div>

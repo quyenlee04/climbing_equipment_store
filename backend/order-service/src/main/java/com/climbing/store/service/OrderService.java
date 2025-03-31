@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.climbing.store.client.ProductClient;
 import com.climbing.store.dto.OrderDTO;
 import com.climbing.store.dto.OrderItemDTO;
 import com.climbing.store.model.Order;
@@ -29,7 +30,8 @@ public class OrderService {
     
     @Autowired
     private OrderItemRepository orderItemRepository;
-    
+    @Autowired
+    private ProductClient productClient; // Add this for product service communication
     public List<OrderDTO> getAllOrders() {
         return orderRepository.findAll().stream()
                 .map(this::convertToDTO)
@@ -118,11 +120,32 @@ public class OrderService {
         Optional<Order> orderOpt = orderRepository.findById(id);
         if (orderOpt.isPresent()) {
             Order order = orderOpt.get();
+            
+            // If payment is being marked as completed
+            if (status == PaymentStatus.COMPLETED && order.getPaymentStatus() != PaymentStatus.COMPLETED) {
+                // Update product quantities
+                try {
+                    updateProductQuantities(order);
+                } catch (Exception e) {
+                    throw new RuntimeException("Failed to update product quantities: " + e.getMessage());
+                }
+            }
+            
             order.setPaymentStatus(status);
             Order updatedOrder = orderRepository.save(order);
             return convertToDTO(updatedOrder);
         }
         return null;
+    }
+
+    private void updateProductQuantities(Order order) {
+        for (OrderItem item : order.getOrderItems()) {
+            // Call product service to update quantity
+            productClient.updateProductStock(
+                item.getProductId(),
+                item.getQuantity()
+            );
+        }
     }
     
     private String generateOrderNumber() {

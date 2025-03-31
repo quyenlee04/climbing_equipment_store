@@ -112,7 +112,7 @@ const AdminLayout = ({ children, title }) => {
             <h1>{title}</h1>
           </div>
           <div className="admin-user-info">
-            <span>Welcome, {user?.firstName }</span>
+            <span>Welcome, {user?.firstName || 'Admin'}</span>
             <button className="logout-button" onClick={handleLogout}>
               Logout
             </button>

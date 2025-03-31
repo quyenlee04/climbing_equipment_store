@@ -111,7 +111,7 @@ const AdminBrands = () => {
     <AdminLayout title="Brands">
       <div className="admin-brands">
         <div className="admin-actions">
-          <button className="add-button" onClick={handleAddBrand}>
+          <button className="btn-add-product" onClick={handleAddBrand}>
             Add New Brand
           </button>
         </div>

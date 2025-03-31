@@ -233,7 +233,7 @@ const AdminProducts = () => {
       <div className="admin-products-container">
         <div className="admin-header">
           <h2>Product Management</h2>
-          <Button className="add-product-btn" onClick={() => setIsModalOpen(true)}>
+          <Button className="btn-add-product" onClick={() => setIsModalOpen(true)}>
             Add New Product
           </Button>
         </div>

@@ -2,7 +2,6 @@ import api from './api';
 import { API_ENDPOINTS } from '../config/apiConfig';
 
 const productService = {
-  // Get all products with optional filters
   getProducts: async (params) => {
     try {
       const response = await api.get(API_ENDPOINTS.PRODUCTS,  params );
