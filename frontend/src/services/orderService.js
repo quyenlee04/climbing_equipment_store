@@ -10,6 +10,15 @@ const orderService = {
       throw error;
     }
   },
+  getAllOrders: async () => {
+    try {
+      const response = await api.get('/orders');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      return [];
+    }
+  },
 
   getOrderById: async (orderId) => {
     try {

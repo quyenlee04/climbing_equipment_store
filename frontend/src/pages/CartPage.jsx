@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link , useNavigate} from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
 import '../styles/CartPage.css';
 import { useAuth } from '../contexts/AuthContext';
@@ -10,8 +10,8 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
 const CartPage = () => {
   const { cart, loading, updateCartItem, removeFromCart } = useCart();
-  const { user } = useAuth();
-
+  const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const cartItems = cart?.items || [];
   const totalPrice = cart?.totalPrice || 0;
 
@@ -24,7 +24,13 @@ const CartPage = () => {
       console.error('Error updating quantity:', error);
     }
   };
-
+  const handleCheckout = () => {
+    if (!isAuthenticated || !user) {
+      navigate('/login', { state: { from: '/checkout' } });
+      return;
+    }
+    navigate('/checkout');
+  };
   const handleRemoveItem = async (itemId) => {
     if (!user?.id || !itemId) return;
     try {
@@ -96,7 +102,7 @@ const CartPage = () => {
             <h2>Order Summary</h2>
             <div className="summary-row">
               <span>Subtotal</span>
-              <span>{totalPrice.toFixed()} VND</span>
+              <span>{formatPrice(totalPrice)}</span>
             </div>
             <div className="summary-row">
               <span>Shipping</span>
@@ -104,10 +110,11 @@ const CartPage = () => {
             </div>
             <div className="summary-total">
               <span>Total</span>
-              <span>{totalPrice.toFixed()} VND</span>
+              <span>{formatPrice(totalPrice)} VND</span>
             </div>
-            <Link to="/checkout" className="checkout-button">
-              Proceed to Checkout
+            <Link to="/checkout" className="checkout-button" onClick={() => handleCheckout()}>
+            
+              Thanh Toán
             </Link>
           </div>
         </div>

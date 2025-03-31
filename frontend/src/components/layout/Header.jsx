@@ -4,7 +4,7 @@ import '../../styles/Header.css';
 import { useAuth } from '../../contexts/AuthContext';
 import logoImg from '../../assets/images/place_your_logo_here_doub.png';
 import { FaShoppingCart, FaUserCircle, FaBars, FaTimes } from 'react-icons/fa';
-
+import SearchBar from '../common/SearchBar';
 const Header = () => {
   const { isAuthenticated, user, logout } = useAuth();
 
@@ -64,8 +64,12 @@ const Header = () => {
             <li className={location.pathname === '/contact' ? 'active' : ''}>
               <Link to="/contact">Contact</Link>
             </li>
+            
           </ul>
         </nav>
+        <div className="flex-1 mx-8">
+            <SearchBar />
+          </div>
         
         <div className="header-actions">
           <Link to="/cart" className="cart-icon">

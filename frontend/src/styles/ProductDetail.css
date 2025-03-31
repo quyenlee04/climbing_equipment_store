@@ -85,28 +85,28 @@
   object-fit: cover;
 }
 
-.product-info {
+.product-info-detail {
   width: 50%;
   padding-left: 30px;
 }
 
-.product-name {
+.product-name-detail {
   font-size: 28px;
   margin: 0 0 15px 0;
   color: #333;
 }
 
-.product-meta {
+.product-meta-detail {
   margin-bottom: 20px;
 }
 
-.product-meta p {
+.product-meta-detail p {
   margin: 5px 0;
   font-size: 14px;
   color: #666;
 }
 
-.product-meta p span {
+.product-meta-detail p span {
   font-weight: 500;
   color: #333;
 }
@@ -130,7 +130,7 @@
   margin-left: 5px;
 }
 
-.product-price {
+.product-price-detail {
   margin: 20px 0;
 }
 
@@ -188,7 +188,7 @@
   margin-bottom: 20px;
 }
 
-.quantity-selector {
+.quantity-selector-detail {
   display: flex;
   align-items: center;
   margin-right: 15px;

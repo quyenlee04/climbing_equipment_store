@@ -9,7 +9,9 @@ const AdminRoute = ({ children }) => {
   if (loading) {
     return <div className="loading">Loading...</div>;
   }
-  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
   
   
   return children;

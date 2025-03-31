@@ -11,6 +11,16 @@ const productService = {
       throw error;
     }
   },
+  getProductss: async () => {
+    try {
+      const response = await api.get('/products');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      return [];
+    }
+  },
+
 
   // Get product details by ID
   getProductById: async (id) => {
@@ -21,7 +31,17 @@ const productService = {
       throw error;
     }
   },
-
+  searchProducts: async (query) => {
+    try {
+      const response = await api.get(`${API_ENDPOINTS.PRODUCTS}/search`, {
+        params: { keyword: query }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error searching products:', error);
+      throw error;
+    }
+  },
   // Get all brands
   getBrands: async () => {
     try {

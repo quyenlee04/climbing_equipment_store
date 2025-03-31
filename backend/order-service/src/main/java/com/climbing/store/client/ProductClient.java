@@ -11,4 +11,5 @@ public interface ProductClient {
     
     @GetMapping("/api/products/{id}/info")
     ProductInfoDTO getProductInfo(@PathVariable("id") Integer productId);
+
 }

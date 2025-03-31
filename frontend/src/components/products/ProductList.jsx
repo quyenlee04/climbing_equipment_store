@@ -12,24 +12,30 @@ const ProductList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
-  
+
   const selectedBrand = searchParams.get('brand') || '';
   const selectedCategory = searchParams.get('category') || '';
   const sortBy = searchParams.get('sort') || 'newest';
-  
+
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
+        let productsData;
+        const filterParam = searchParams.get('filter');
         const params = {};
         if (selectedBrand) params.brandId = selectedBrand;
         if (selectedCategory) params.categoryId = selectedCategory;
-        if (searchParams.get('search')) params.search = searchParams.get('search');
         
-        const data = await productService.getProducts({ params });
+        if (filterParam) {
+          productsData = await productService.searchProducts(filterParam);
+        } else {
+          productsData = await productService.getProducts({ params });
+        }
         
+
         // Sort products based on sortBy parameter
-        let sortedProducts = [...data];
+        let sortedProducts = [...productsData];
         switch (sortBy) {
           case 'price-low-high':
             sortedProducts.sort((a, b) => a.price - b.price);
@@ -46,7 +52,7 @@ const ProductList = () => {
           default: // newest
             sortedProducts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         }
-        
+
         setProducts(sortedProducts);
         setError(null);
       } catch (err) {
@@ -56,7 +62,7 @@ const ProductList = () => {
         setLoading(false);
       }
     };
-    
+
     const fetchFilters = async () => {
       try {
         const [brandsData, categoriesData] = await Promise.all([
@@ -69,11 +75,11 @@ const ProductList = () => {
         console.error('Error fetching filters:', err);
       }
     };
-    
+
     fetchProducts();
     fetchFilters();
   }, [selectedBrand, selectedCategory, sortBy, searchParams]);
-  
+
   const handleBrandChange = (brandId) => {
     const newParams = new URLSearchParams(searchParams);
     if (brandId) {
@@ -83,7 +89,7 @@ const ProductList = () => {
     }
     setSearchParams(newParams);
   };
-  
+
   const handleCategoryChange = (categoryId) => {
     const newParams = new URLSearchParams(searchParams);
     if (categoryId) {
@@ -93,13 +99,13 @@ const ProductList = () => {
     }
     setSearchParams(newParams);
   };
-  
+
   const handleSortChange = (e) => {
     const newParams = new URLSearchParams(searchParams);
     newParams.set('sort', e.target.value);
     setSearchParams(newParams);
   };
-  
+
   const handleClearFilters = () => {
     const newParams = new URLSearchParams();
     if (searchParams.get('search')) {
@@ -107,7 +113,7 @@ const ProductList = () => {
     }
     setSearchParams(newParams);
   };
-  
+
   return (
     <div className="product-list-container">
       <FilterSidebar
@@ -119,14 +125,14 @@ const ProductList = () => {
         onCategoryChange={handleCategoryChange}
         onClearFilters={handleClearFilters}
       />
-      
+
       <div className="product-list-content">
         <div className="product-list-header">
           <h1>Products</h1>
           <div className="sort-container">
             <label htmlFor="sort-by">Sort by:</label>
-            <select 
-              id="sort-by" 
+            <select
+              id="sort-by"
               value={sortBy}
               onChange={handleSortChange}
             >
@@ -138,7 +144,7 @@ const ProductList = () => {
             </select>
           </div>
         </div>
-        
+
         {loading ? (
           <div className="loading">Loading products...</div>
         ) : error ? (

@@ -26,6 +26,7 @@ const ProductDetail = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const { addToCart } = useCart();
   const { user } = useAuth();
+  const { fetchCart } = useCart();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -75,20 +76,21 @@ const ProductDetail = () => {
   const handleAddToCart = async () => {
     try {
       if (!user) {
-        toast.error('Please log in to add items to cart');
+        toast.error('Vui Lòng đăng nhập trước khi thêm sản phẩm vào giỏ hàng');
         return;
       }
 
       if (!product || !product.id) {
-        throw new Error('Product not found');
+        throw new Error('Không tìm thấy sản phẩm');
       }
     
       await cartService.addToCart(user.id, product.id, quantity);
-      toast.success('Product added to cart successfully');
+      await fetchCart();
+      toast.success('Thêm sản phẩm vào giỏ hàng thành công!');
       
     } catch (err) {
       console.error('Error adding to cart:', err);
-      toast.error(err.message || 'Failed to add product to cart');
+      toast.error(err.message || 'Thêm sản phẩm vào giỏ hàng thất bại');
     } finally {
       setAddingToCart(false);
     }
@@ -155,11 +157,11 @@ const ProductDetail = () => {
           </div>
         </div>
 
-        <div className="product-info">
-          <h1 className="product-name">{product.name}</h1>
+        <div className="product-info-detail">
+          <h1 className="product-name-detail">{product.name}</h1>
           <div className="product-meta">
-            <p className="product-brand">Brand: <span>{product.brand}</span></p>
-            <p className="product-sku">SKU: <span>{product.sku}</span></p>
+            <p className="product-brand-detail">Brand: <span>{product.brand}</span></p>
+            <p className="product-sku-detail">SKU: <span>{product.sku}</span></p>
             <div className="product-rating">
               {[...Array(5)].map((_, i) => (
                 <span key={i} className={i < product.rating ? "star filled" : "star"}>★</span>
@@ -168,12 +170,12 @@ const ProductDetail = () => {
             </div>
           </div>
 
-          <div className="product-price">
+          <div className="product-price-detail">
             {product.discount > 0 ? (
               <>
-                <span className="original-price">{formatPrice(product.price)}</span>
-                <span className="discounted-price">{formatPrice(product.price)}</span>
-                <span className="discount-percentage">Save {product.discount}%</span>
+                <span className="original-price-detail">{formatPrice(product.price)}</span>
+                <span className="discounted-price-detail">{formatPrice(product.price)}</span>
+                <span className="discount-percentage-detail">Save {product.discount}%</span>
               </>
             ) : (
               <span className="regular-price">{formatPrice(product.price)}</span>
@@ -181,15 +183,15 @@ const ProductDetail = () => {
           </div>
 
           <div className="product-availability">
-            <span className={product.stockQuantity > 0 ? "in-stock" : "out-of-stock"}>
-              {product.stockQuantity > 0 ? "In Stock" : "Out of Stock"}
+            <span className={product.stockQuantity > 0 ? "Còn hàng" : "Hết hàng"}>
+              {product.stockQuantity > 0 ? "Còn hàng" : "Hết hàng"}
             </span>
             {product.stockQuantity > 0 && product.stockQuantity < 10 && (
               <span className="low-stock">Only {product.stockQuantity} left!</span>
             )}
           </div>
 
-          <div className="product-description">
+          <div className="product-description-detail">
             <p>{product.shortDescription}</p>
           </div>
 

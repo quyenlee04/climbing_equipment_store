@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import '../../styles/SearchBar.css';
 
 const SearchBar = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery(''); // Clear search after submission
     }
   };
 
@@ -20,9 +24,10 @@ const SearchBar = () => {
         placeholder="Search for products..."
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
+        className="search-input"
       />
-      <button type="submit">
-        <i className="fa fa-search"></i>
+      <button type="submit" className="search-button">
+        <FontAwesomeIcon icon={faSearch} />
       </button>
     </form>
   );

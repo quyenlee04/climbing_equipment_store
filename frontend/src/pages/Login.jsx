@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import '../styles/Auth.css';
+import { toast } from 'react-toastify';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -27,11 +28,15 @@ const Login = () => {
     setLoading(true);
 
     try {
-      await login(formData);
-      navigate('/');
+      const response = await login(formData);
+      if (response && response.token) {
+        navigate('/');
+        toast.success('Đăng nhập thành công');
+      }
     } catch (err) {
-      console.error('Login error:', err);
-      setError(err.message || 'Failed to login. Please check your credentials.');
+       console.error('Login error:', err);
+    toast.error(err.response?.data?.message || 'Đăng nhập thất bại');
+    setError(err.response?.data?.message || 'Đăng nhập thất bại');
     } finally {
       setLoading(false);
     }

@@ -10,27 +10,27 @@ import HomePage from './pages/HomePage';
 import ProductsPage from './pages/ProductsPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import CartPage from './pages/CartPage';
-// import CheckoutPage from './pages/CheckoutPage';
+import CheckoutPage from './pages/CheckoutPage';
 // import OrderConfirmationPage from './pages/OrderConfirmationPage';
 import Login from './pages/Login';
 import Register from './pages/Register';
-// import UserProfile from './pages/UserProfile';
-// import OrderHistory from './pages/OrderHistory';
+import Profile from './pages/Profile';
+import Orders from './pages/Orders';
 // import AboutPage from './pages/AboutPage';
 // import ContactPage from './pages/ContactPage';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 // Admin Components
-
+import 'bootstrap/dist/css/bootstrap.min.css';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProducts from './pages/admin/AdminProducts';
 import AdminCategories from './pages/admin/AdminCategories';
 import AdminBrands from './pages/admin/AdminBrands';
-// import AdminOrders from './pages/admin/AdminOrders';
+import AdminOrders from './pages/admin/AdminOrders';
 import AdminUsers from './pages/admin/AdminUsers';
 
 // Protected Route Component
-// import ProtectedRoute from './components/auth/ProtectedRoute';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 import AdminRoute from './components/auth/AdminRoute';
 
 function App() {
@@ -79,11 +79,11 @@ function App() {
                 <AdminBrands />
               </AdminRoute>
             } />
-            {/* <Route path="/admin/orders" element={
+            <Route path="/admin/orders" element={
               <AdminRoute>
                 <AdminOrders />
               </AdminRoute>
-            } /> */}
+            } />
             <Route path="/admin/users" element={
               <AdminRoute>
                 <AdminUsers />
@@ -99,11 +99,11 @@ function App() {
                   <Route path="/products" element={<ProductsPage />} />
                   <Route path="/products/:id" element={<ProductDetailPage />} />
                   <Route path="/cart" element={<CartPage />} />
-                  {/* <Route path="/checkout" element={
+                  <Route path="/checkout" element={
                     <ProtectedRoute>
                       <CheckoutPage />
                     </ProtectedRoute>
-                  } /> */}
+                  } />
                   {/* <Route path="/order-confirmation/:orderId" element={
                     <ProtectedRoute>
                       <OrderConfirmationPage />
@@ -111,16 +111,16 @@ function App() {
                   } /> */}
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />
-                  {/* <Route path="/profile" element={
+                  <Route path="/profile" element={
                     <ProtectedRoute>
-                      <UserProfile />
+                      <Profile />
                     </ProtectedRoute>
                   } />
-                  <Route path="/order-history" element={
+                  <Route path="/orders" element={
                     <ProtectedRoute>
-                      <OrderHistory />
+                      <Orders />
                     </ProtectedRoute>
-                  } /> */}
+                  } />
                   {/* <Route path="/about" element={<AboutPage />} />
                   <Route path="/contact" element={<ContactPage />} />
                   <Route path="*" element={<Navigate to="/" replace />} /> */}

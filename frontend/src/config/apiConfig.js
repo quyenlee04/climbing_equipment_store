@@ -32,7 +32,7 @@ const API_ENDPOINTS = {
   UPDATE_ORDER_STATUS: (id) => `/orders/${id}/status`,
   BRANDS: '/brands',
   CATEGORIES: '/categories',
-  DASHBOARD_STATS: '/dashboard/stats'
+
 };
 
 export { API_BASE_URL, API_ENDPOINTS };
