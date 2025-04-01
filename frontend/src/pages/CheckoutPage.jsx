@@ -86,6 +86,14 @@ const CheckoutPage = () => {
       [e.target.name]: e.target.value
     });
   };
+  const calculateTotal = () => {
+    if (!cart?.items?.length) return 0;
+    return cart.items.reduce((sum, item) => {
+      const price = item.productPrice || item.price;
+      return sum + (price * item.quantity);
+    }, 0);
+  };
+
 
   return (
     <div className="checkout-container">
@@ -103,7 +111,7 @@ const CheckoutPage = () => {
             ))}
           </div>
           <div className="total">
-            <strong>Total:</strong> {formatPrice(cart?.total || 0)}
+            <strong>Total:</strong> {formatPrice(calculateTotal())}
           </div>
         </div>
 

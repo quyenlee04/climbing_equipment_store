@@ -40,12 +40,20 @@ const orderService = {
 
   updateOrderStatus: async (orderId, status) => {
     try {
-      const response = await api.put(API_ENDPOINTS.UPDATE_ORDER_STATUS(orderId), { status });
+      const response = await api.patch(API_ENDPOINTS.UPDATE_ORDER_STATUS(orderId), null, { status });
       return response.data;
     } catch (error) {
       throw error;
     }
-  }
+  },
+  updatePaymentStatus: async (orderId, status) => {
+    try {
+      const response = await api.patch(API_ENDPOINTS.UPDATE_PAYMENT_STATUS(orderId), null, { status });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 export default orderService;

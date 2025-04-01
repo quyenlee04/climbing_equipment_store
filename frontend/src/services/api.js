@@ -119,7 +119,21 @@ const api = {
       body: data
     });
   },
-  
+  patch: async (endpoint, data, params = {}) => {
+    // Add query parameters if they exist
+    if (params && Object.keys(params).length > 0) {
+      const queryParams = new URLSearchParams();
+      Object.entries(params).forEach(([key, value]) => {
+        queryParams.append(key, value);
+      });
+      endpoint = `${endpoint}?${queryParams.toString()}`;
+    }
+    
+    return api.request(endpoint, {
+      method: 'PATCH',
+      body: data
+    });
+  },
   delete: (endpoint) => {
     return api.request(endpoint, {
       method: 'DELETE'

@@ -6,6 +6,7 @@ import brandService from '../../services/brandService';
 import '../../styles/admin/AdminProducts.css';
 import AdminLayout from '../../components/admin/AdminLayout';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { toast } from 'react-toastify';
 
 const AdminProducts = () => {
   // State for products list
@@ -150,13 +151,19 @@ const AdminProducts = () => {
         formData.append('image', selectedFile);
       }
 
-      const result = await productService.createProduct(formData);
-      setSuccess('Product created successfully!');
+      
+    if (editMode) {
+      await productService.updateProduct(product.id, FormData);
+      toast.success('Product updated successfully');
+    } else {
+      await productService.createProduct(FormData);
+      toast.success('Product created successfully');
+    }
       setIsModalOpen(false);
       resetForm();
       fetchProducts();
     } catch (err) {
-      setError(err.message || 'Error saving product');
+      toast.error('Product creation failed');
       console.error('Error saving product:', err);
     } finally {
       setSubmitting(false);

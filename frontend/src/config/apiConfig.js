@@ -30,6 +30,7 @@ const API_ENDPOINTS = {
   ORDERS: '/orders',
   ORDER_DETAILS: (id) => `/orders/${id}`,
   UPDATE_ORDER_STATUS: (id) => `/orders/${id}/status`,
+  UPDATE_PAYMENT_STATUS: (id) => `/orders/${id}/payment`,
   BRANDS: '/brands',
   CATEGORIES: '/categories',
 

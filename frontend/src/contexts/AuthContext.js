@@ -1,7 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import authService from '../services/authService';
 import axios from 'axios';
-
+import { toast } from 'react-toastify';
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -9,6 +9,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
   const setCurrentUser = (user) => {
     setUser(user);
     setIsAuthenticated(true);
@@ -52,17 +53,31 @@ export const AuthProvider = ({ children }) => {
       throw error;
     }
   };
+
+  const register = async (userData) => {
+    try {
+      const response = await authService.register(userData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  };
+
   const logout = () => {
     authService.logout();
+    toast.info('Đã đăng xuất');
     setUser(null);
     setIsAuthenticated(false);
   };
+
+ 
 
   const value = {
     user,
     isAuthenticated,
     loading,
     error,
+    register,
     login,
     logout,
     setUser,

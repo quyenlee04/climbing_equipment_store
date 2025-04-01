@@ -21,7 +21,7 @@ public class CorsConfig implements WebFluxConfigurer {
         CorsConfiguration corsConfig = new CorsConfiguration();
         corsConfig.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
         corsConfig.setMaxAge(3600L);
-        corsConfig.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        corsConfig.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE","PATCH", "OPTIONS"));
         corsConfig.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization"));
         corsConfig.setExposedHeaders(Arrays.asList("Content-Type", "Content-Disposition"));
         corsConfig.setAllowCredentials(true);

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import '../styles/Auth.css';
+import { toast } from 'react-toastify';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -24,13 +25,18 @@ const Register = () => {
   };
 
   const validateForm = () => {
+    if(formData.username.trim()===''){
+      toast.error('Vui lòng nhập tên đăng nhập');
+      return false;
+    }
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      toast.error('Mật khẩu không khớp');
+      
       return false;
     }
     
     if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters');
+      toast.error('Mật khẩu phải có ít nhất 6 ký tự');
       return false;
     }
     
@@ -51,10 +57,13 @@ const Register = () => {
       // Remove confirmPassword before sending to API
       const { confirmPassword, ...registrationData } = formData;
       await register(registrationData);
+      toast.success('Đăng ký thành công');
       navigate('/login');
     } catch (err) {
       console.error('Registration error:', err);
-      setError(err.message || 'Failed to register. Please try again.');
+      const errorMessage = err.response?.data?.message || err.message || 'Đăng ký thất bại, vui lòng thử lại!';
+      toast.error(errorMessage);
+      // setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -76,7 +85,7 @@ const Register = () => {
               name="username"
               value={formData.username}
               onChange={handleChange}
-              required
+              
             />
           </div>
           
@@ -88,7 +97,7 @@ const Register = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              required
+            
             />
           </div>
           
@@ -100,8 +109,7 @@ const Register = () => {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              required
-              minLength="6"
+              
             />
           </div>
           
@@ -113,7 +121,7 @@ const Register = () => {
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
-              required
+              
             />
           </div>
           
